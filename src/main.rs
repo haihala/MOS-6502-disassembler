@@ -29,6 +29,7 @@ struct Payload {
 }
 
 #[derive(Debug)]
+#[allow(clippy::upper_case_acronyms)]
 enum Instruction {
     BRK,
     LDA,
@@ -46,7 +47,7 @@ impl Instruction {
         }
     }
 
-    fn format(&self, args: &Vec<u8>) -> String {
+    fn format(&self, args: &[u8]) -> String {
         match self {
             BRK => "BRK".to_string(),
             LDA => format!("LDA #${:x}", args[1]),
