@@ -1,5 +1,5 @@
 [package]
-name = "MOS-6502-disassembler"
+name = "mos_6502_disassembler"
 version = "0.1.0"
 edition = "2021"
 

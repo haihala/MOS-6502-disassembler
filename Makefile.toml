@@ -27,4 +27,6 @@ dependencies = [
     "clippy",
 ]
 
-
+[tasks.server]
+command = "cargo"
+args = ["run", "--bin", "server"]
