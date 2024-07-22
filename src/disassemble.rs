@@ -85,21 +85,31 @@ enum AddressMode {
     ZeropageY,
 }
 impl AddressMode {
-    fn format(&self, args: &[u8]) -> String {
+    fn format(&self, args: &[u8], offset: usize) -> String {
         // The entire instruction is passed in, index accordingly
         match self {
-            Immediate => format!("#${:x}", args[1]),
+            Accumulator => format!("{:x}", args[1]), // Not sure of this one
             Absolute => format!("${:x}{:x}", args[2], args[1]),
-            _ => todo!(),
+            AbsoluteX => format!("${:x}{:x},X", args[2], args[1]),
+            AbsoluteY => format!("${:x}{:x},Y", args[2], args[1]),
+            Immediate => format!("#${:x}", args[1]),
+            Implied => String::new(),
+            Indirect => format!("({:x}{:x})", args[2], args[1]),
+            XIndirect => format!("({:x},X)", args[1]),
+            IndirectY => format!("({:x}),Y", args[1]),
+            Relative => format!("{:x}", (args[1] as i8) as isize + offset as isize),
+            Zeropage => format!("{:x}", args[1]),
+            ZeropageX => format!("{:x},X", args[1]),
+            ZeropageY => format!("{:x},Y", args[1]),
         }
     }
 
     fn length(&self) -> usize {
         match self {
             Implied => 1,
-            Immediate | Relative | Zeropage | ZeropageX | ZeropageY => 2,
+            Immediate | Relative | Zeropage | ZeropageX | ZeropageY | XIndirect | IndirectY => 2,
             Accumulator => 2, // Not sure I understood this one.
-            Absolute | AbsoluteX | AbsoluteY | Indirect | XIndirect | IndirectY => 3,
+            Absolute | AbsoluteX | AbsoluteY | Indirect => 3,
         }
     }
 }
@@ -324,7 +334,7 @@ impl Display for Instruction {
             self.offset,
             string_bytes.join(" "),
             self.operation,
-            self.address_mode.format(&self.raw_bytes),
+            self.address_mode.format(&self.raw_bytes, self.offset),
         ))
     }
 }
