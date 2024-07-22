@@ -147,10 +147,8 @@ mod tests {
         const URL: &str = "http://localhost:9999/";
         let client = reqwest::Client::builder().build().unwrap();
 
-        let input = vec![0xa9, 0xbd, 0xa0, 0xbd, 0x20, 0x28, 0xba];
-
         let payload = Payload {
-            data: input.clone(),
+            data: vec![0xa9, 0xbd, 0xa0, 0xbd, 0x20, 0x28, 0xba],
         };
 
         let res: Output = client
@@ -164,13 +162,13 @@ mod tests {
             .unwrap();
 
         let expected: Output = Output {
-            disassembly: vec![
+            disassembly: [
                 "0x0000 a9 bd        LDA #$bd",
                 "0x0002 a0 bd        LDY #$bd",
                 "0x0004 20 28 ba     JSR $ba28",
             ]
-            .into_iter()
-            .map(|s| s.into())
+            .iter()
+            .map(|&s| s.into())
             .collect(),
         };
         assert_eq!(expected, res);
