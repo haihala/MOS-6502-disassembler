@@ -1,5 +1,5 @@
 [package]
-name = "tools-programmer-homework"
+name = "MOS-6502-disassembler"
 version = "0.1.0"
 edition = "2021"
 
