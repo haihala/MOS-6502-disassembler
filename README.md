@@ -29,4 +29,6 @@ pip install httpx
 ```
 
 You can then use the feeder. To use it, have the first command line argument be
-the path to the file, for example `python feed.py test-bin/test1.bin`
+the path to the file, for example `python feed.py test-bin/test1.bin`.
+Optionally, you can add a `--verbose` flag after the path to get a bit more
+information.
