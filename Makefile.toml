@@ -30,3 +30,7 @@ dependencies = [
 [tasks.server]
 command = "cargo"
 args = ["run", "--bin", "server"]
+
+[tasks.watch]
+command = "cargo"
+args = ["watch", "-x", "run"]

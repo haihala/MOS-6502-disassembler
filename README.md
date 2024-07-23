@@ -12,6 +12,7 @@ the following tasks available:
 - format: Check formatting with rustfmt
 - clippy: Check code with clippy
 - validate: Runs build, test, format, and clippy tasks
+- watch: Runs server in cargo-watch
 
 Run any of them with `cargo make <task>`. You need to install cargo-make.
 
