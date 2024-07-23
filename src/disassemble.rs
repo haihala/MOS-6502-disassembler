@@ -103,7 +103,7 @@ impl AddressMode {
             Indirect => format!(" (${:0>2X}{:0>2X})", args[2], args[1]),
             XIndirect => format!(" (${:0>2X},X)", args[1]),
             IndirectY => format!(" (${:0>2X}),Y", args[1]),
-            Relative => format!(" ${:0>2X}", (args[1] as i8) as isize + offset as isize),
+            Relative => format!(" ${:0>4X}", (offset + 2) as i16 + (args[1] as i8) as i16),
             Zeropage => format!(" ${:0>2X}", args[1]),
             ZeropageX => format!(" ${:0>2X},X", args[1]),
             ZeropageY => format!(" ${:0>2X},Y", args[1]),
@@ -343,7 +343,7 @@ impl Display for Instruction {
 
         write!(
             f,
-            "{:04X}   {: <8}             {}{}",
+            "{:04X}   {: <8}      {}{}",
             self.offset,
             string_bytes.join(" "),
             self.operation,
@@ -366,4 +366,37 @@ pub fn disassemble(data: Vec<u8>) -> Vec<String> {
         .into_iter()
         .map(|row| row.to_string())
         .collect()
+}
+
+#[cfg(test)]
+mod test {
+    use std::{fs, io::BufRead};
+
+    use crate::disassemble;
+
+    #[test]
+    fn test_binary_one() {
+        test_example_bin("test1");
+    }
+
+    #[test]
+    fn test_binary_two() {
+        test_example_bin("test2");
+    }
+
+    fn test_example_bin(case: &'static str) {
+        let input = fs::read(format!("test-bin/{}.bin", case)).unwrap();
+        // Examples are from https://www.masswerk.at/6502/disassembler.html
+        // Set output format to "verbose - no symbols"
+        // Removed first and last lines
+        let expected = fs::read(format!("test-bin/{}.example", case)).unwrap();
+
+        for (line, (output, exp)) in disassemble(input)
+            .into_iter()
+            .zip(expected.lines())
+            .enumerate()
+        {
+            assert_eq!(output, exp.unwrap(), "Line {}", line);
+        }
+    }
 }
