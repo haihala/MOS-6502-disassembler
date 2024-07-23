@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 #[allow(clippy::upper_case_acronyms)]
 enum Operation {
     ADC,
@@ -58,13 +58,18 @@ enum Operation {
     TXA,
     TXS,
     TYA,
+    Unknown,
 }
 
 use Operation::*;
 
 impl Display for Operation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        if *self == Operation::Unknown {
+            write!(f, "???")
+        } else {
+            write!(f, "{:?}", self)
+        }
     }
 }
 
@@ -83,6 +88,7 @@ enum AddressMode {
     Zeropage,
     ZeropageX,
     ZeropageY,
+    Unknown,
 }
 impl AddressMode {
     fn format(&self, args: &[u8], offset: usize) -> String {
@@ -101,12 +107,13 @@ impl AddressMode {
             Zeropage => format!("{:x}", args[1]),
             ZeropageX => format!("{:x},X", args[1]),
             ZeropageY => format!("{:x},Y", args[1]),
+            AddressMode::Unknown => format!("                ;%{:0>8b}", args[0]),
         }
     }
 
     fn length(&self) -> usize {
         match self {
-            Implied => 1,
+            Implied | AddressMode::Unknown => 1,
             Immediate | Relative | Zeropage | ZeropageX | ZeropageY | XIndirect | IndirectY => 2,
             Accumulator => 2, // Not sure I understood this one.
             Absolute | AbsoluteX | AbsoluteY | Indirect => 3,
@@ -286,10 +293,7 @@ fn decode_opcode(value: u8) -> (Operation, AddressMode) {
         0xfd => (SBC, AbsoluteX),
         0xfe => (INC, AbsoluteX),
 
-        other => {
-            dbg!(other);
-            todo!()
-        }
+        _ => (Operation::Unknown, AddressMode::Unknown),
     }
 }
 
