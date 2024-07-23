@@ -65,9 +65,9 @@ mod tests {
 
         let expected: Output = Output {
             disassembly: [
-                "0x0000 a9 bd        LDA #$bd",
-                "0x0002 a0 bd        LDY #$bd",
-                "0x0004 20 28 ba     JSR $ba28",
+                "0000   A9 BD                LDA #$BD",
+                "0002   A0 BD                LDY #$BD",
+                "0004   20 28 BA             JSR $BA28",
             ]
             .iter()
             .map(|&s| s.into())

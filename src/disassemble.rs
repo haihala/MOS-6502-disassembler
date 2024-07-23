@@ -94,20 +94,29 @@ impl AddressMode {
     fn format(&self, args: &[u8], offset: usize) -> String {
         // The entire instruction is passed in, index accordingly
         match self {
-            Accumulator => format!("{:x}", args[1]), // Not sure of this one
-            Absolute => format!("${:x}{:x}", args[2], args[1]),
-            AbsoluteX => format!("${:x}{:x},X", args[2], args[1]),
-            AbsoluteY => format!("${:x}{:x},Y", args[2], args[1]),
-            Immediate => format!("#${:x}", args[1]),
+            Accumulator => format!(" {:0>2X}", args[1]), // Not sure of this one
+            Absolute => format!(" ${:0>2X}{:0>2X}", args[2], args[1]),
+            AbsoluteX => format!(" ${:0>2X}{:0>2X},X", args[2], args[1]),
+            AbsoluteY => format!(" ${:0>2X}{:0>2X},Y", args[2], args[1]),
+            Immediate => format!(" #${:0>2X}", args[1]),
             Implied => String::new(),
-            Indirect => format!("({:x}{:x})", args[2], args[1]),
-            XIndirect => format!("({:x},X)", args[1]),
-            IndirectY => format!("({:x}),Y", args[1]),
-            Relative => format!("{:x}", (args[1] as i8) as isize + offset as isize),
-            Zeropage => format!("{:x}", args[1]),
-            ZeropageX => format!("{:x},X", args[1]),
-            ZeropageY => format!("{:x},Y", args[1]),
-            AddressMode::Unknown => format!("                ;%{:0>8b}", args[0]),
+            Indirect => format!(" (${:0>2X}{:0>2X})", args[2], args[1]),
+            XIndirect => format!(" (${:0>2X},X)", args[1]),
+            IndirectY => format!(" (${:0>2X}),Y", args[1]),
+            Relative => format!(" ${:0>2X}", (args[1] as i8) as isize + offset as isize),
+            Zeropage => format!(" ${:0>2X}", args[1]),
+            ZeropageX => format!(" ${:0>2X},X", args[1]),
+            ZeropageY => format!(" ${:0>2X},Y", args[1]),
+            AddressMode::Unknown => {
+                if args[0].is_ascii_alphabetic() || args[0].is_ascii_punctuation() {
+                    // Ascii is a subset of utf-8
+                    // args should only have one value for Undefined addresses
+                    let char = String::from_utf8(args.to_vec()).unwrap();
+                    format!("                ;%{:0>8b} '{}'", args[0], char)
+                } else {
+                    format!("                ;%{:0>8b}", args[0])
+                }
+            }
         }
     }
 
@@ -330,16 +339,17 @@ impl Display for Instruction {
         let string_bytes: Vec<String> = self
             .raw_bytes
             .iter()
-            .map(|byte| format!("{:x}", byte))
+            .map(|byte| format!("{:0>2X}", byte))
             .collect();
 
-        f.write_fmt(format_args!(
-            "{:#06x} {: <8}     {} {}",
+        write!(
+            f,
+            "{:04X}   {: <8}             {}{}",
             self.offset,
             string_bytes.join(" "),
             self.operation,
             self.address_mode.format(&self.raw_bytes, self.offset),
-        ))
+        )
     }
 }
 
