@@ -29,11 +29,11 @@ dependencies = [
 
 [tasks.server]
 command = "cargo"
-args = ["run", "--bin", "server"]
+args = ["run", "--bin", "server", "--", "--bind-address", "127.0.0.1:9999"]
 
 [tasks.watch]
 command = "cargo"
-args = ["run", "--bin", "server"]
+args = ["run", "--bin", "server", "--", "--bind-address", "127.0.0.1:9999"]
 watch = true
 
 [tasks.cli]

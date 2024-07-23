@@ -3,20 +3,27 @@ use axum::{
     routing::post,
     Json, Router,
 };
+use clap::Parser;
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tracing::info;
 
 use mos_6502_disassembler::disassemble;
 
+#[derive(Debug, Parser)]
+struct Args {
+    #[arg(short, long)]
+    bind_address: String,
+}
+
 #[tokio::main]
 async fn main() {
+    let args = Args::parse();
     tracing_subscriber::fmt().init();
 
     let routes = Router::new().route("/", post(handler));
 
-    let addr = format!("127.0.0.1:{}", 9999);
-    let listener = TcpListener::bind(addr).await.unwrap();
+    let listener = TcpListener::bind(args.bind_address).await.unwrap();
     info!("{:<15} - {:?}\n", "LISTENING", listener.local_addr());
     axum::serve(listener, routes.into_make_service())
         .await
