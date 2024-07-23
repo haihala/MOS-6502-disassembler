@@ -71,6 +71,8 @@ close to metal in general.
 
 ## Level 2
 
+[link](https://github.com/haihala/MOS-6502-disassembler/releases/tag/level-2)
+
 The second level is a more reasonable one. This took me about a work day of
 effort to put together (including level 1). Level 2 is about completeness and
 the low hanging tooling fruit. I added cargo-make as a task runner. I like how
