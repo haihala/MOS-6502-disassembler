@@ -13,6 +13,7 @@ the following tasks available:
 - clippy: Check code with clippy
 - validate: Runs build, test, format, and clippy tasks
 - watch: Runs server in cargo-watch
+- cli <files>: Runs the disassembler on all of the files provided
 
 Run any of them with `cargo make <task>`. You need to install cargo-make.
 

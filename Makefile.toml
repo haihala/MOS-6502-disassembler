@@ -35,3 +35,7 @@ args = ["run", "--bin", "server"]
 command = "cargo"
 args = ["run", "--bin", "server"]
 watch = true
+
+[tasks.cli]
+command = "cargo"
+args = ["run", "--bin", "cli", "${@}"]
