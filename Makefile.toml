@@ -33,4 +33,5 @@ args = ["run", "--bin", "server"]
 
 [tasks.watch]
 command = "cargo"
-args = ["watch", "-x", "run"]
+args = ["run", "--bin", "server"]
+watch = true
