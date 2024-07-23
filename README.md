@@ -14,3 +14,19 @@ the following tasks available:
 - validate: Runs build, test, format, and clippy tasks
 
 Run any of them with `cargo make <task>`. You need to install cargo-make.
+
+# Python testing tool
+
+To easier feed files to the web server, I made a simple python testing tool
+called `feed.py`. To use it, you need to install
+[httpx](https://www.python-httpx.org/). I recommend doing this in a virtual
+python environent with something like:
+
+```sh
+python -m venv venv
+./venv/bin/activate # This depends on shell and whatnot
+pip install httpx
+```
+
+You can then use the feeder. To use it, have the first command line argument be
+the path to the file, for example `python feed.py test-bin/test1.bin`
