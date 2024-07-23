@@ -94,7 +94,7 @@ impl AddressMode {
     fn format(&self, args: &[u8], offset: usize) -> String {
         // The entire instruction is passed in, index accordingly
         match self {
-            Accumulator => format!(" {:0>2X}", args[1]), // Not sure of this one
+            Accumulator => format!(" A"),
             Absolute => format!(" ${:0>2X}{:0>2X}", args[2], args[1]),
             AbsoluteX => format!(" ${:0>2X}{:0>2X},X", args[2], args[1]),
             AbsoluteY => format!(" ${:0>2X}{:0>2X},Y", args[2], args[1]),
@@ -122,9 +122,8 @@ impl AddressMode {
 
     fn length(&self) -> usize {
         match self {
-            Implied | AddressMode::Unknown => 1,
+            Accumulator | Implied | AddressMode::Unknown => 1,
             Immediate | Relative | Zeropage | ZeropageX | ZeropageY | XIndirect | IndirectY => 2,
-            Accumulator => 2, // Not sure I understood this one.
             Absolute | AbsoluteX | AbsoluteY | Indirect => 3,
         }
     }
