@@ -39,3 +39,14 @@ watch = true
 [tasks.cli]
 command = "cargo"
 args = ["run", "--bin", "cli", "${@}"]
+
+[tasks.build-release]
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.build-docker]
+script_runner = "@shell"
+dependencies = ["build-release"]
+script = '''
+docker build . -t mos-6502-disassembler
+'''

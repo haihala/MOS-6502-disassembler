@@ -14,6 +14,8 @@ the following tasks available:
 - validate: Runs build, test, format, and clippy tasks
 - watch: Runs server in cargo-watch
 - cli <files>: Runs the disassembler on all of the files provided
+- build-release: Builds the release binary
+- build-docker: Builds a docker container and tags it as `mos-6502-disassembler`
 
 Run any of them with `cargo make <task>`. You need to install cargo-make.
 
