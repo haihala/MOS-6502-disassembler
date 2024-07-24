@@ -35,14 +35,14 @@ async fn main() {
 }
 
 #[derive(OpenApi)]
-#[openapi(paths(handler), components(schemas(Payload, Output)))]
+#[openapi(paths(handler), components(schemas(Input, Output)))]
 struct ApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-struct Payload {
+struct Input {
     // Vec<u8> is a string (octet stream), https://github.com/juhaku/utoipa/issues/570
-    #[schema(value_type = Vec<u32>)]
-    data: Vec<u8>,
+    #[schema(value_type = Vec<u32>, example = json!([169, 189, 160, 189, 32, 40, 186]))]
+    bytes: Vec<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, ToSchema)]
@@ -53,7 +53,7 @@ struct Output {
 #[utoipa::path(
     post,
     path = "/",
-    request_body = Payload,
+    request_body = Input,
     responses(
         (
             status = 200,
@@ -66,10 +66,9 @@ struct Output {
         ),
     )
 )]
-async fn handler(Json(payload): Json<Payload>) -> Response {
-    let Payload { data } = payload;
+async fn handler(Json(payload): Json<Input>) -> Response {
     let res = Output {
-        disassembly: disassemble(data),
+        disassembly: disassemble(payload.bytes),
     };
     Json(res).into_response()
 }
@@ -82,8 +81,8 @@ mod tests {
         const URL: &str = "http://localhost:9999/";
         let client = reqwest::Client::builder().build().unwrap();
 
-        let payload = Payload {
-            data: vec![0xa9, 0xbd, 0xa0, 0xbd, 0x20, 0x28, 0xba],
+        let payload = Input {
+            bytes: vec![0xa9, 0xbd, 0xa0, 0xbd, 0x20, 0x28, 0xba],
         };
 
         let res: Output = client
