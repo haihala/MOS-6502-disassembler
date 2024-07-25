@@ -1,0 +1,51 @@
+<html>
+
+<head>
+    <!-- HTMX is used for minor interactivity without a full reload -->
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        form {
+            max-width: 40rem;
+            flex-grow: 1;
+            padding: 2rem;
+            /*Eggshell*/
+            background-color: #f0ead6;
+
+            display: flex;
+            flex-direction: column;
+            row-gap: 1rem;
+        }
+
+        textarea {
+            min-height: 5rem;
+        }
+
+        /* This will be brought in by the htmx */
+        table tr:nth-child(odd) td {
+            background-color: #eeeeee;
+        }
+
+        table tr:nth-child(even) td {
+            background-color: #aaaaaa;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <textarea name="bytes"></textarea>
+        <button hx-get="/table" hx-include="[name='bytes']" hx-target=".output">
+            Disassemble!
+        </button>
+        <div class="output"></div>
+    </form>
+</body>
+
+</html>

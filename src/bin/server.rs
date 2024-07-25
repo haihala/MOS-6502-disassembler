@@ -1,6 +1,6 @@
 use axum::{
     response::{IntoResponse, Response},
-    routing::post,
+    routing::{get, post},
     Json, Router,
 };
 use clap::Parser;
@@ -9,7 +9,7 @@ use tokio::net::TcpListener;
 use tracing::info;
 use utoipa::{OpenApi, ToSchema};
 
-use mos_6502_disassembler::disassemble;
+use mos_6502_disassembler::{disassemble, front_page, table};
 use utoipa_swagger_ui::SwaggerUi;
 
 #[derive(Debug, Parser)]
@@ -24,7 +24,9 @@ async fn main() {
     tracing_subscriber::fmt().init();
 
     let routes = Router::new()
-        .route("/", post(handler))
+        .route("/", get(front_page))
+        .route("/table", get(table))
+        .route("/json", post(json_handler))
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", ApiDoc::openapi()));
 
     let listener = TcpListener::bind(args.bind_address).await.unwrap();
@@ -35,7 +37,7 @@ async fn main() {
 }
 
 #[derive(OpenApi)]
-#[openapi(paths(handler), components(schemas(Input, Output)))]
+#[openapi(paths(json_handler), components(schemas(Input, Output)))]
 struct ApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -52,7 +54,7 @@ struct Output {
 
 #[utoipa::path(
     post,
-    path = "/",
+    path = "/json",
     request_body = Input,
     responses(
         (
@@ -66,7 +68,7 @@ struct Output {
         ),
     )
 )]
-async fn handler(Json(payload): Json<Input>) -> Response {
+async fn json_handler(Json(payload): Json<Input>) -> Response {
     let res = Output {
         disassembly: disassemble(payload.bytes),
     };
@@ -78,7 +80,7 @@ mod tests {
     use super::*;
     #[tokio::test]
     async fn test_api_with_example() {
-        const URL: &str = "http://localhost:9999/";
+        const URL: &str = "http://localhost:9999/json";
         let client = reqwest::Client::builder().build().unwrap();
 
         let payload = Input {

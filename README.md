@@ -21,7 +21,8 @@ Run any of them with `cargo make <task>`. You need to install cargo-make.
 
 When the server is running, you can find documentation at `/swagger`. If you
 started the server using `cargo make server` or `cargo make watch`, the swagger
-UI will be at http://127.0.0.1:9999/swagger
+UI will be at http://127.0.0.1:9999/swagger. There is also a rudimentary user
+interface available http://127.0.0.1:9999/.
 
 # Python testing tool
 
