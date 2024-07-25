@@ -5,7 +5,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use utoipa::{OpenApi, ToSchema};
 
-use crate::disassemble;
+use crate::{disassemble, Instruction};
 
 #[derive(OpenApi)]
 #[openapi(paths(json_handler), components(schemas(Input, Output)))]
@@ -20,7 +20,8 @@ pub struct Input {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, ToSchema)]
 pub struct Output {
-    disassembly: Vec<String>,
+    lines: Vec<String>,
+    structured: Vec<Instruction>,
 }
 
 #[utoipa::path(
@@ -40,8 +41,10 @@ pub struct Output {
     )
 )]
 pub async fn json_handler(Json(payload): Json<Input>) -> Response {
+    let structured = disassemble(payload.bytes);
     let res = Output {
-        disassembly: disassemble(payload.bytes),
+        lines: structured.iter().map(|i| i.to_string()).collect(),
+        structured,
     };
     Json(res).into_response()
 }
@@ -68,16 +71,15 @@ mod tests {
             .await
             .unwrap();
 
-        let expected: Output = Output {
-            disassembly: [
-                "0000   A9 BD         LDA #$BD",
-                "0002   A0 BD         LDY #$BD",
-                "0004   20 28 BA      JSR $BA28",
-            ]
-            .iter()
-            .map(|&s| s.into())
-            .collect(),
-        };
-        assert_eq!(expected, res);
+        let expected: Vec<String> = [
+            "0000   A9 BD         LDA #$BD",
+            "0002   A0 BD         LDY #$BD",
+            "0004   20 28 BA      JSR $BA28",
+        ]
+        .iter()
+        .map(|&s| s.into())
+        .collect();
+
+        assert_eq!(expected, res.lines);
     }
 }

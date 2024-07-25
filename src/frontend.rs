@@ -2,7 +2,7 @@ use askama::Template;
 use axum::{extract::Query, response::Html};
 use serde::Deserialize;
 
-use crate::disassemble;
+use crate::{disassemble, Instruction};
 
 #[derive(Template)]
 #[template(path = "main.html")]
@@ -20,7 +20,7 @@ pub struct TableParams {
 #[derive(Template)]
 #[template(path = "table.html")]
 struct TableTemplate {
-    lines: Vec<String>,
+    lines: Vec<Instruction>,
 }
 
 #[derive(Template)]

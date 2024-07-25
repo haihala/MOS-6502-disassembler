@@ -1,8 +1,19 @@
 <table>
+    <thead>
+        <tr>
+            <th>Offset</th>
+            <th>Raw bytes</th>
+            <th>Operation</th>
+            <th>Address</th>
+        </tr>
+    </thead>
     <tbody>
         {% for line in lines %}
         <tr>
-            <td>{{ line }}</td>
+            <td>{{ "{:0>4x}"|format(line.offset) }}</td>
+            <td>{{ line.render_raw() }}</td>
+            <td>{{ line.operation }}</td>
+            <td>{{ line.render_address() }}</td>
         </tr>
         {% endfor %}
     </tbody>

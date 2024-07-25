@@ -1,8 +1,9 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
 #[allow(clippy::upper_case_acronyms)]
-enum Operation {
+pub(crate) enum Operation {
     ADC,
     AND,
     ASL,
@@ -60,7 +61,6 @@ enum Operation {
     TYA,
     Unknown,
 }
-
 use Operation::*;
 
 impl Display for Operation {
@@ -73,8 +73,8 @@ impl Display for Operation {
     }
 }
 
-#[derive(Debug)]
-enum AddressMode {
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub(crate) enum AddressMode {
     Accumulator,
     Absolute,
     AbsoluteX,
@@ -90,6 +90,7 @@ enum AddressMode {
     ZeropageY,
     Unknown,
 }
+use AddressMode::*;
 impl AddressMode {
     fn format(&self, args: &[u8], offset: usize) -> String {
         // The entire instruction is passed in, index accordingly
@@ -133,7 +134,6 @@ impl AddressMode {
         }
     }
 }
-use AddressMode::*;
 
 fn decode_opcode(value: u8) -> (Operation, AddressMode) {
     match value {
@@ -310,12 +310,12 @@ fn decode_opcode(value: u8) -> (Operation, AddressMode) {
     }
 }
 
-#[derive(Debug)]
-struct Instruction {
-    operation: Operation,
-    address_mode: AddressMode,
-    raw_bytes: Vec<u8>,
-    offset: usize,
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct Instruction {
+    pub(crate) operation: Operation,
+    pub(crate) address_mode: AddressMode,
+    pub(crate) raw_bytes: Vec<u8>,
+    pub(crate) offset: usize,
 }
 
 impl Instruction {
@@ -337,27 +337,33 @@ impl Instruction {
     fn is_satisfied(&self) -> bool {
         self.address_mode.length() == self.raw_bytes.len()
     }
+
+    pub fn render_raw(&self) -> String {
+        self.raw_bytes
+            .iter()
+            .map(|byte| format!("{:0>2X}", byte))
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    pub fn render_address(&self) -> String {
+        self.address_mode.format(&self.raw_bytes, self.offset)
+    }
 }
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let string_bytes: Vec<String> = self
-            .raw_bytes
-            .iter()
-            .map(|byte| format!("{:0>2X}", byte))
-            .collect();
-
         write!(
             f,
             "{:04X}   {: <8}      {}{}",
             self.offset,
-            string_bytes.join(" "),
+            self.render_raw(),
             self.operation,
-            self.address_mode.format(&self.raw_bytes, self.offset),
+            self.render_address(),
         )
     }
 }
 
-pub fn disassemble(data: Vec<u8>) -> Vec<String> {
+pub fn disassemble(data: Vec<u8>) -> Vec<Instruction> {
     data.into_iter()
         .enumerate()
         .fold(vec![], |mut acc: Vec<Instruction>, (offset, token)| {
@@ -369,7 +375,6 @@ pub fn disassemble(data: Vec<u8>) -> Vec<String> {
             acc
         })
         .into_iter()
-        .map(|row| row.to_string())
         .collect()
 }
 
@@ -401,7 +406,7 @@ mod test {
             .zip(expected.lines())
             .enumerate()
         {
-            assert_eq!(output, exp.unwrap(), "Line {}", line);
+            assert_eq!(output.to_string(), exp.unwrap(), "Line {}", line);
         }
     }
 }

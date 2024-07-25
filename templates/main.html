@@ -4,6 +4,7 @@
     <!-- HTMX is used for minor interactivity without a full reload -->
     <script src="https://unpkg.com/htmx.org@2.0.1"></script>
 
+    <!-- As there is not that much css, it's easier to keep it here -->
     <style>
         body {
             display: flex;
@@ -11,7 +12,7 @@
             padding: 2rem;
         }
 
-        form {
+        main {
             max-width: 40rem;
             flex-grow: 1;
             padding: 2rem;
@@ -27,25 +28,40 @@
             min-height: 5rem;
         }
 
-        /* This will be brought in by the htmx */
-        table tr:nth-child(odd) td {
+        /* Table will be brought in by the htmx when button is clicked*/
+        table {
+            width: 100%;
+            border: solid #888888;
+        }
+
+        thead tr {
+            background-color: #999999;
+        }
+
+        tbody tr:nth-child(odd) {
             background-color: #eeeeee;
         }
 
-        table tr:nth-child(even) td {
+        tbody tr:nth-child(even) {
             background-color: #aaaaaa;
+        }
+
+        td {
+            padding: 0 0.5rem;
         }
     </style>
 </head>
 
 <body>
-    <form>
+    <main>
         <textarea name="bytes"></textarea>
         <button hx-get="/table" hx-include="[name='bytes']" hx-target=".output">
             Disassemble!
         </button>
-        <div class="output"></div>
-    </form>
+        <div class="output">
+            Please enter your binary in the textarea above and click the button.
+        </div>
+    </main>
 </body>
 
 </html>
