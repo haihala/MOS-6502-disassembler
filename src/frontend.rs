@@ -1,5 +1,5 @@
 use askama::Template;
-use poem::web::Query;
+use poem::web::{Multipart, Query};
 use poem_openapi::{payload::Html, OpenApi};
 use serde::Deserialize;
 
@@ -24,6 +24,12 @@ struct TableTemplate {
 #[template(path = "table-error.html")]
 struct TableErrorTemplate {
     illegals: Vec<(usize, String)>,
+}
+
+#[derive(Template)]
+#[template(path = "textarea.html")]
+struct TextareaTemplate {
+    content: String,
 }
 
 pub struct Frontend;
@@ -72,5 +78,22 @@ impl Frontend {
             let lines = disassemble(bytes);
             Html(TableTemplate { lines }.render().unwrap())
         }
+    }
+
+    #[oai(path = "/textarea", method = "post")]
+    pub async fn file(&self, mut multipart: Multipart) -> Html<String> {
+        let bytes = multipart.next_field().await.unwrap().unwrap().bytes().await;
+
+        let content = bytes
+            .into_iter()
+            .flatten()
+            .map(|byte| format!("{:0<2x}", byte))
+            .collect::<Vec<_>>()
+            .chunks(8)
+            .map(|chunk| chunk.join(" "))
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        Html(TextareaTemplate { content }.render().unwrap())
     }
 }

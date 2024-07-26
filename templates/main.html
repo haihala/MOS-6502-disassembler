@@ -24,6 +24,13 @@
             row-gap: 1rem;
         }
 
+        .fileUpload {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
         textarea {
             min-height: 5rem;
         }
@@ -57,6 +64,11 @@
 
 <body>
     <main>
+        <form hx-post="/textarea" hx-encoding="multipart/form-data" hx-target="[name='bytes']" hx-swap="outerHTML"
+            class="fileUpload">
+            <input type="file" name="file" />
+            <button>upload</button>
+        </form>
         <textarea name="bytes"></textarea>
         <button hx-get="/table" hx-include="[name='bytes']" hx-target=".output">
             Disassemble!
