@@ -100,6 +100,52 @@ impl Frontend {
 #[cfg(test)]
 mod tests {
     #[tokio::test]
+    async fn test_table_generation() {
+        let client = reqwest::Client::new();
+
+        let output = client
+            .get("http://localhost:9999/table?bytes=a9 bd a0 bd 20 28 ba")
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+
+        for chunks in [
+            ["0000", "A9 BD", "LDA", "#$BD"],
+            ["0002", "A0 BD", "LDY", "#$BD"],
+            ["0004", "20 28 BA", "JSR", "$BA28"],
+        ] {
+            dbg!(&chunks);
+            for chunk in chunks {
+                assert!(
+                    output.contains(chunk),
+                    "output: {}, chunk: {}",
+                    output,
+                    chunk
+                );
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_faulty_table() {
+        let client = reqwest::Client::new();
+
+        let output = client
+            .get("http://localhost:9999/table?bytes=abcdefgh")
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+
+        assert!(output.contains("'gh' at byte 3"), "output: {}", output);
+    }
+
+    #[tokio::test]
     async fn test_decode() {
         const URL: &str = "http://localhost:9999/decode";
         let client = reqwest::Client::new();
