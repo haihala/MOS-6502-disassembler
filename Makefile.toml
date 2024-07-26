@@ -48,5 +48,5 @@ args = ["build", "--release"]
 script_runner = "@shell"
 dependencies = ["build-release"]
 script = '''
-docker build . -t mos-6502-disassembler
+docker build . -t haihala/mos-6502-disassembler
 '''
