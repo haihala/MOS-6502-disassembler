@@ -38,6 +38,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Build container
+        run: cargo make build-docker
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
