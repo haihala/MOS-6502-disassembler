@@ -76,18 +76,23 @@ impl Frontend {
 
     #[oai(path = "/decode", method = "post")]
     pub async fn file(&self, mut multipart: Multipart) -> Html<String> {
-        let bytes = multipart.next_field().await.unwrap().unwrap().bytes().await;
+        let Ok(Some(file)) = multipart.next_field().await else {
+            return Html("Could not decode, no file provided".to_string());
+        };
 
-        let content = bytes
-            .into_iter()
-            .flatten()
-            .map(|byte| format!("{:0<2x}", byte))
-            .collect::<Vec<_>>()
-            .chunks(8)
-            .map(|chunk| chunk.join(" "))
-            .collect::<Vec<String>>()
-            .join("\n");
+        let Ok(bytes) = file.bytes().await else {
+            return Html("Provided file is empty".to_string());
+        };
 
-        Html(content)
+        Html(
+            bytes
+                .into_iter()
+                .map(|byte| format!("{:0<2x}", byte))
+                .collect::<Vec<_>>()
+                .chunks(8)
+                .map(|chunk| chunk.join(" "))
+                .collect::<Vec<String>>()
+                .join("\n"),
+        )
     }
 }
