@@ -22,7 +22,9 @@ struct TableTemplate {
 
 #[derive(Template)]
 #[template(path = "table-error.html")]
-struct TableErrorTemplate;
+struct TableErrorTemplate {
+    illegals: Vec<(usize, String)>,
+}
 
 pub struct Frontend;
 #[OpenApi]
@@ -34,14 +36,13 @@ impl Frontend {
 
     #[oai(path = "/table", method = "get")]
     pub async fn table(&self, params: Query<TableParams>) -> Html<String> {
-        let filtered_input = params
+        let mut illegals = vec![];
+
+        let bytes = params
             .bytes
             .chars()
-            // This filters out newlines and spaces for convenience
-            .filter(|&c| c.is_ascii_alphanumeric())
-            .collect::<String>();
-        let Ok(bytes) = filtered_input
-            .chars()
+            .filter(|c| !c.is_ascii_whitespace()) // Strip whitespace
+            // Form into pairs (2 hexadecimal digits -> 1 byte)
             .fold(vec![], |mut acc: Vec<String>, incoming| {
                 match acc.last_mut() {
                     Some(s) if s.len() == 1 => {
@@ -54,12 +55,22 @@ impl Frontend {
                 acc
             })
             .into_iter()
-            .map(|c| u8::from_str_radix(c.as_str(), 16))
-            .collect::<Result<Vec<u8>, _>>()
-        else {
-            return Html(TableErrorTemplate.render().unwrap());
-        };
-        let lines = disassemble(bytes);
-        Html(TableTemplate { lines }.render().unwrap())
+            .enumerate()
+            .filter_map(|(index, c)| {
+                if let Ok(digit) = u8::from_str_radix(c.as_str(), 16) {
+                    Some(digit)
+                } else {
+                    illegals.push((index, c));
+                    None
+                }
+            })
+            .collect::<Vec<u8>>();
+
+        if !illegals.is_empty() {
+            Html(TableErrorTemplate { illegals }.render().unwrap())
+        } else {
+            let lines = disassemble(bytes);
+            Html(TableTemplate { lines }.render().unwrap())
+        }
     }
 }

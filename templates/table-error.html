@@ -1,1 +1,9 @@
-Could not parse that garbo, sorry!
+<div style="margin: 1rem">
+    Your input contains some characters that could not be parsed as hexadecimal.
+
+    <ul>
+        {% for pair in illegals %}
+        <li>'{{pair.1}}' at byte {{pair.0}}</li>
+        {% endfor %}
+    </ul>
+</div>

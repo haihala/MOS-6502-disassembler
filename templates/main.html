@@ -28,10 +28,13 @@
             min-height: 5rem;
         }
 
+        .output {
+            border: solid #888888;
+        }
+
         /* Table will be brought in by the htmx when button is clicked*/
         table {
             width: 100%;
-            border: solid #888888;
         }
 
         thead tr {
@@ -58,9 +61,11 @@
         <button hx-get="/table" hx-include="[name='bytes']" hx-target=".output">
             Disassemble!
         </button>
-        <div class="output">
+        <p>
             Please enter your binary in the textarea above and click the button.
-        </div>
+            Whitespace will be <strong>ignored</strong>.
+        </p>
+        <div class="output"></div>
     </main>
 </body>
 
