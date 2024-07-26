@@ -19,7 +19,7 @@ jobs:
         run: cargo make build-docker
 
       - name: Start container
-        run: docker run -d -p 9999:8080 mos-6502-disassembler:latest
+        run: docker run -d -p 9999:8080 haihala/mos-6502-disassembler:latest
 
       - name: Run checks
         run: cargo make validate
