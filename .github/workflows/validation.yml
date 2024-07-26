@@ -1,0 +1,27 @@
+name: Commit validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: davidB/rust-cargo-make@v1
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: client
+
+      - name: Build
+        run: cargo make build-docker
+
+      - name: Start container
+        run: docker run -d -p 9999:8080 mos-6502-disassembler:latest
+
+      - name: Run checks
+        run: cargo make validate
