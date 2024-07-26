@@ -1,9 +1,10 @@
+use poem_openapi::Object;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
 #[allow(clippy::upper_case_acronyms)]
-pub(crate) enum Operation {
+enum Operation {
     ADC,
     AND,
     ASL,
@@ -74,7 +75,7 @@ impl Display for Operation {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
-pub(crate) enum AddressMode {
+enum AddressMode {
     Accumulator,
     Absolute,
     AbsoluteX,
@@ -311,11 +312,11 @@ fn decode_opcode(value: u8) -> (Operation, AddressMode) {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-pub struct Instruction {
-    pub(crate) operation: Operation,
-    pub(crate) address_mode: AddressMode,
-    pub(crate) raw_bytes: Vec<u8>,
-    pub(crate) offset: usize,
+struct Instruction {
+    operation: Operation,
+    address_mode: AddressMode,
+    raw_bytes: Vec<u8>,
+    offset: usize,
 }
 
 impl Instruction {
@@ -338,7 +339,7 @@ impl Instruction {
         self.address_mode.length() == self.raw_bytes.len()
     }
 
-    pub fn render_raw(&self) -> String {
+    fn render_raw(&self) -> String {
         self.raw_bytes
             .iter()
             .map(|byte| format!("{:0>2X}", byte))
@@ -346,24 +347,38 @@ impl Instruction {
             .join(" ")
     }
 
-    pub fn render_address(&self) -> String {
+    fn render_address(&self) -> String {
         self.address_mode.format(&self.raw_bytes, self.offset)
     }
+
+    fn as_structured_instruction(&self) -> StructuredInstruction {
+        StructuredInstruction {
+            offset: self.offset,
+            render_raw: self.render_raw(),
+            render_address: self.render_address(),
+            operation: self.operation.to_string(),
+        }
+    }
 }
-impl Display for Instruction {
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Object, Clone)]
+pub struct StructuredInstruction {
+    pub offset: usize,
+    pub render_raw: String,
+    pub operation: String,
+    pub render_address: String,
+}
+impl Display for StructuredInstruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{:04X}   {: <8}      {}{}",
-            self.offset,
-            self.render_raw(),
-            self.operation,
-            self.render_address(),
+            self.offset, self.render_raw, self.operation, self.render_address,
         )
     }
 }
 
-pub fn disassemble(data: Vec<u8>) -> Vec<Instruction> {
+pub fn disassemble(data: Vec<u8>) -> Vec<StructuredInstruction> {
     data.into_iter()
         .enumerate()
         .fold(vec![], |mut acc: Vec<Instruction>, (offset, token)| {
@@ -375,6 +390,7 @@ pub fn disassemble(data: Vec<u8>) -> Vec<Instruction> {
             acc
         })
         .into_iter()
+        .map(|instruction| instruction.as_structured_instruction())
         .collect()
 }
 

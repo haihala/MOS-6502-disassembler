@@ -1,14 +1,8 @@
-use axum::{
-    routing::{get, post},
-    Router,
-};
 use clap::Parser;
-use tokio::net::TcpListener;
-use tracing::info;
+use poem::{listener::TcpListener, Route, Server};
+use poem_openapi::OpenApiService;
 
-use mos_6502_disassembler::{front_page, json_handler, table, ApiDoc};
-use utoipa::OpenApi;
-use utoipa_swagger_ui::SwaggerUi;
+use mos_6502_disassembler::{Api, Frontend};
 
 #[derive(Debug, Parser)]
 struct Args {
@@ -21,15 +15,12 @@ async fn main() {
     let args = Args::parse();
     tracing_subscriber::fmt().init();
 
-    let routes = Router::new()
-        .route("/", get(front_page))
-        .route("/table", get(table))
-        .route("/json", post(json_handler))
-        .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", ApiDoc::openapi()));
+    let service = OpenApiService::new((Api, Frontend), "Api", "1.0")
+        .server(format!("http://{}", args.bind_address));
 
-    let listener = TcpListener::bind(args.bind_address).await.unwrap();
-    info!("{:<15} - {:?}\n", "LISTENING", listener.local_addr());
-    axum::serve(listener, routes.into_make_service())
-        .await
-        .unwrap();
+    let ui = service.swagger_ui();
+
+    let _ = Server::new(TcpListener::bind(args.bind_address))
+        .run(Route::new().nest("/", service).nest("/swagger", ui))
+        .await;
 }

@@ -1,52 +1,37 @@
-use axum::{
-    response::{IntoResponse, Response},
-    Json,
-};
+use crate::{disassemble, StructuredInstruction};
+use poem_openapi::{payload::Json, ApiResponse, Object, OpenApi};
 use serde::{Deserialize, Serialize};
-use utoipa::{OpenApi, ToSchema};
 
-use crate::{disassemble, Instruction};
-
-#[derive(OpenApi)]
-#[openapi(paths(json_handler), components(schemas(Input, Output)))]
-pub struct ApiDoc;
-
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Object)]
 pub struct Input {
-    // Vec<u8> is a string (octet stream), https://github.com/juhaku/utoipa/issues/570
-    #[schema(value_type = Vec<u32>, example = json!([169, 189, 160, 189, 32, 40, 186]))]
     bytes: Vec<u8>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, ToSchema)]
-pub struct Output {
-    lines: Vec<String>,
-    structured: Vec<Instruction>,
+#[derive(Debug, PartialEq, ApiResponse)]
+pub enum Output {
+    #[oai(status = 200)]
+    Ok(Json<Disassembly>),
 }
 
-#[utoipa::path(
-    post,
-    path = "/json",
-    request_body = Input,
-    responses(
-        (
-            status = 200,
-            description = "Successful decompillation, outputs list of lines",
-            body = Output
-        ),
-        (
-            status = 422,
-            description = "Invalid input, can't parse input as 8 bit numbers"
-        ),
-    )
-)]
-pub async fn json_handler(Json(payload): Json<Input>) -> Response {
-    let structured = disassemble(payload.bytes);
-    let res = Output {
-        lines: structured.iter().map(|i| i.to_string()).collect(),
-        structured,
-    };
-    Json(res).into_response()
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Object, Clone)]
+pub struct Disassembly {
+    lines: Vec<String>,
+    structured: Vec<StructuredInstruction>,
+}
+
+pub struct Api;
+
+#[OpenApi]
+impl Api {
+    #[oai(path = "/json", method = "post")]
+    pub async fn json_handler(&self, payload: Json<Input>) -> Output {
+        let structured = disassemble(payload.bytes.clone());
+
+        Output::Ok(Json(Disassembly {
+            lines: structured.iter().map(|i| i.to_string()).collect(),
+            structured,
+        }))
+    }
 }
 
 #[cfg(test)]
@@ -61,15 +46,16 @@ mod tests {
             bytes: vec![0xa9, 0xbd, 0xa0, 0xbd, 0x20, 0x28, 0xba],
         };
 
-        let res: Output = client
+        let lines = client
             .post(URL)
             .json(&payload)
             .send()
             .await
             .unwrap()
-            .json()
+            .json::<Disassembly>()
             .await
-            .unwrap();
+            .unwrap()
+            .lines;
 
         let expected: Vec<String> = [
             "0000   A9 BD         LDA #$BD",
@@ -80,6 +66,6 @@ mod tests {
         .map(|&s| s.into())
         .collect();
 
-        assert_eq!(expected, res.lines);
+        assert_eq!(expected, lines);
     }
 }
