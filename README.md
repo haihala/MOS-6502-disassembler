@@ -42,6 +42,22 @@ the path to the file, for example `python feed.py test-bin/test1.bin`.
 Optionally, you can add a `--verbose` flag after the path to get a bit more
 information.
 
+# CI
+
+The project has a CI pipeline using Github Actions. The pipeline not only
+checks the code with all of the tools listed above, but builds a docker image
+and pushes it to docker hub.
+
+There is a server available at https://mos-6502-disassembler.tunk.org/ that then
+every night pulls the latest image and runs that behind an nginx container.
+Certificates are handled using certbot and the domain comes from dy.fi. VM
+itself is from the Oracle cloud free tier.
+
+The server is quite puny, so a large enough binary is likely to cause issues.
+Considering how hosting it was not in the assignment I will assume this is fine.
+If it was a concern I would put some work into configuring the nginx to limit
+inputs, as that seems like a natural place to do that.
+
 # Levels
 
 Despite the pretty lenient deadline I set for myself, I think it may be
