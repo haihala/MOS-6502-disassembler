@@ -9,19 +9,19 @@
         body {
             display: flex;
             justify-content: center;
-            padding: 2rem;
+            max-height: 100vh;
+            margin: 0;
         }
 
         main {
             max-width: 40rem;
-            flex-grow: 1;
             padding: 2rem;
+            margin: 2rem;
             /*Eggshell*/
             background-color: #f0ead6;
 
             display: flex;
             flex-direction: column;
-            row-gap: 1rem;
         }
 
         .fileUpload {
@@ -35,8 +35,13 @@
             min-height: 5rem;
         }
 
+        .disassemble {
+            margin: 1rem 0;
+        }
+
         .output {
             border: solid #888888;
+            overflow-y: scroll;
         }
 
         /* Table will be brought in by the htmx when button is clicked*/
@@ -64,18 +69,22 @@
 
 <body>
     <main>
+        <h1>MOS 6502 disassembler</h1>
+        <p>
+            To use the disassembler, either enter your binary file into the file
+            input and click upload or manually enter hexadecimal bytes to the
+            textarea. After the text area has bytes, click the "Disassemble!"
+            button. Whitespace will be ignored, so you can format the bytes how you
+            wish.
+        </p>
         <form hx-post="/decode" hx-encoding="multipart/form-data" hx-target="[name='bytes']" class="fileUpload">
             <input type="file" name="file" />
             <button>upload</button>
         </form>
         <textarea name="bytes"></textarea>
-        <button hx-get="/table" hx-include="[name='bytes']" hx-target=".output">
+        <button hx-get="/table" hx-include="[name='bytes']" hx-target=".output" class="disassemble">
             Disassemble!
         </button>
-        <p>
-            Please enter your binary in the textarea above and click the button.
-            Whitespace will be <strong>ignored</strong>.
-        </p>
         <div class="output"></div>
     </main>
 </body>
