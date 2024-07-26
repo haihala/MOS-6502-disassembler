@@ -75,7 +75,7 @@ impl Frontend {
     }
 
     #[oai(path = "/decode", method = "post")]
-    pub async fn file(&self, mut multipart: Multipart) -> Html<String> {
+    pub async fn decode_file(&self, mut multipart: Multipart) -> Html<String> {
         let Ok(Some(file)) = multipart.next_field().await else {
             return Html("Could not decode, no file provided".to_string());
         };
@@ -87,12 +87,47 @@ impl Frontend {
         Html(
             bytes
                 .into_iter()
-                .map(|byte| format!("{:0<2x}", byte))
+                .map(|byte| format!("{:0>2X}", byte))
                 .collect::<Vec<_>>()
                 .chunks(8)
                 .map(|chunk| chunk.join(" "))
                 .collect::<Vec<String>>()
                 .join("\n"),
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[tokio::test]
+    async fn test_decode() {
+        const URL: &str = "http://localhost:9999/decode";
+        let client = reqwest::Client::new();
+
+        let bytes = std::fs::read("test-bin/test1.bin").unwrap();
+
+        let lines: String = client
+            .post(URL)
+            .multipart(
+                reqwest::multipart::Form::new()
+                    .part("file", reqwest::multipart::Part::stream(bytes)),
+            )
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+
+        let expected = r#"48 E7 20 20 70 21 61 00
+F8 EE 61 E6 61 00 04 02
+22 6E 00 84 41 E9 00 16
+74 07 0C 00 00 44 67 18
+41 E8 00 20 74 06 0C 00
+00 41 67 0C 45 E9 00 06
+0C 00 00 55 67 1E 60 38"#
+            .to_string();
+
+        assert_eq!(expected, lines);
     }
 }
