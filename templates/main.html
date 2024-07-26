@@ -64,8 +64,7 @@
 
 <body>
     <main>
-        <form hx-post="/textarea" hx-encoding="multipart/form-data" hx-target="[name='bytes']" hx-swap="outerHTML"
-            class="fileUpload">
+        <form hx-post="/decode" hx-encoding="multipart/form-data" hx-target="[name='bytes']" class="fileUpload">
             <input type="file" name="file" />
             <button>upload</button>
         </form>

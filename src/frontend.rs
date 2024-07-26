@@ -26,12 +26,6 @@ struct TableErrorTemplate {
     illegals: Vec<(usize, String)>,
 }
 
-#[derive(Template)]
-#[template(path = "textarea.html")]
-struct TextareaTemplate {
-    content: String,
-}
-
 pub struct Frontend;
 #[OpenApi]
 impl Frontend {
@@ -80,7 +74,7 @@ impl Frontend {
         }
     }
 
-    #[oai(path = "/textarea", method = "post")]
+    #[oai(path = "/decode", method = "post")]
     pub async fn file(&self, mut multipart: Multipart) -> Html<String> {
         let bytes = multipart.next_field().await.unwrap().unwrap().bytes().await;
 
@@ -94,6 +88,6 @@ impl Frontend {
             .collect::<Vec<String>>()
             .join("\n");
 
-        Html(TextareaTemplate { content }.render().unwrap())
+        Html(content)
     }
 }
