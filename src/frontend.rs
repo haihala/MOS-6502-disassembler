@@ -69,7 +69,7 @@ impl Frontend {
         if !illegals.is_empty() {
             Html(TableErrorTemplate { illegals }.render().unwrap())
         } else {
-            let lines = disassemble(bytes);
+            let lines = disassemble(&bytes);
             Html(TableTemplate { lines }.render().unwrap())
         }
     }

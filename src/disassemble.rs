@@ -379,13 +379,13 @@ impl Display for StructuredInstruction {
     }
 }
 
-pub fn disassemble(data: Vec<u8>) -> Vec<StructuredInstruction> {
-    data.into_iter()
+pub fn disassemble(data: &[u8]) -> Vec<StructuredInstruction> {
+    data.iter()
         .enumerate()
         .fold(vec![], |mut acc: Vec<Instruction>, (offset, token)| {
             match acc.last_mut() {
-                Some(last) if !last.is_satisfied() => last.add(token),
-                _ => acc.push(Instruction::new(offset, token)),
+                Some(last) if !last.is_satisfied() => last.add(*token),
+                _ => acc.push(Instruction::new(offset, *token)),
             };
 
             acc
@@ -426,7 +426,7 @@ mod test {
         // Removed first and last lines
         let expected = fs::read(format!("test-bin/{}.example", case)).unwrap();
 
-        for (line, (output, exp)) in disassemble(input)
+        for (line, (output, exp)) in disassemble(&input)
             .into_iter()
             .zip(expected.lines())
             .enumerate()

@@ -25,7 +25,7 @@ pub struct Api;
 impl Api {
     #[oai(path = "/json", method = "post")]
     pub async fn json_handler(&self, payload: Json<Input>) -> Output {
-        let structured = disassemble(payload.bytes.clone());
+        let structured = disassemble(&payload.bytes);
 
         Output::Ok(Json(Disassembly {
             lines: structured.iter().map(|i| i.to_string()).collect(),
