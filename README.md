@@ -47,7 +47,7 @@ the path to the file, for example `python feed.py test-bin/test1.bin`.
 Optionally, you can add a `--verbose` flag after the path to get a bit more
 information.
 
-## generate-megabinary.py
+## generate-binary.py
 
 This script was used to generate the "megabinary". Simply put, it is a binary
 with one of each opcode and the operands set to 'FF' for each. This was then fed
@@ -61,6 +61,15 @@ test.
 The opcodes were derived directly from the reference page HTML. This was edited
 down to a csv variant with semicolons as separators and then fed to the python
 script in question.
+
+If an additional "giga" argument is provided, instead of generating all of the
+opcodes with FF for all operands, it will generate a binary with all of the
+opcodes and all potential values for operands. Not individual operands, each
+loop of opcodes will all receive the same operands. The binary produced is 256
+times the size of the giga binary.
+
+I am aware that the giga and mega terms are inaccurate. Felt they were
+descriptive and slightly amusing.
 
 # CI
 
@@ -77,6 +86,22 @@ The server is quite puny, so a large enough binary is likely to cause issues.
 Considering how hosting it was not in the assignment I will assume this is fine.
 If it was a concern I would put some work into configuring the nginx to limit
 inputs, as that seems like a natural place to do that.
+
+# Performance
+
+I did some benchmarking and profiling using `criterion` and `cargo-flamegraph`
+respectively. Before I changed anything, disassembling the mega binary took
+about 3ms. After some tweaks I got it down to just above 2ms, but felt the loss
+in readability was not worth the performance gain considering it should be
+plenty fast for a web server as is.
+
+The main culprit for performance issues was repeatedly formating and
+concatenating strings. Perhaps a more centralized strategy would serve it well.
+I don't feel the need to investigate that due to sufficiently good performance
+as is. Disassembling the gigabinary takes about 600ms (110ms on release build).
+If output is piped to /dev/null, it drops to 60ms (25ms on release build). The
+mos-6502 shouldn't even be able to handle a binary of that size, as the offset
+no longer fits to 16 bits.
 
 # Levels
 

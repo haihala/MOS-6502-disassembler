@@ -111,7 +111,10 @@ impl AddressMode {
             Indirect => format!(" (${:0>2X}{:0>2X})", args[2], args[1]),
             XIndirect => format!(" (${:0>2X},X)", args[1]),
             IndirectY => format!(" (${:0>2X}),Y", args[1]),
-            Relative => format!(" ${:0>4X}", (offset + 2) as i16 + (args[1] as i8) as i16),
+            Relative => format!(
+                " ${:0>4X}",
+                (offset + 2) as isize + (args[1] as i8) as isize
+            ),
             Zeropage => format!(" ${:0>2X}", args[1]),
             ZeropageX => format!(" ${:0>2X},X", args[1]),
             ZeropageY => format!(" ${:0>2X},Y", args[1]),

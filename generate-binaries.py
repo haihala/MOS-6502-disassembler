@@ -1,4 +1,5 @@
 import csv
+import sys
 
 
 def operand_len(address_mode):
@@ -27,7 +28,13 @@ with open('opcode-table.csv') as csvfile:
                 )
             )
 
-with open('test-bin/mega.bin', 'wb') as f:
-    for (opcode, operand_count) in opcodes:
-        to_write = [opcode] + operand_count*[255]
-        f.write(bytes(to_write))
+giga_mode = len(sys.argv) > 1 and sys.argv[1] == "giga"
+
+operand_values = [255] if not giga_mode else [i for i in range(0, 256)]
+
+
+with open(f'test-bin/{"giga" if giga_mode else "mega"}.bin', 'wb') as f:
+    for operand in operand_values:
+        for (opcode, operand_count) in opcodes:
+            to_write = [opcode] + operand_count*[operand]
+            f.write(bytes(to_write))
