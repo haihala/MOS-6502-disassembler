@@ -17,6 +17,7 @@ the following tasks available:
 - build-release: Builds the release binary
 - build-docker: Builds a docker container and tags it as `mos-6502-disassembler`
 - bench: Runs cargo bench
+- flamegraph: Runs generates a flamegraph of the benchmarks with cargo-flamegraph
 
 Run any of them with `cargo make <task>`. You need to install cargo-make.
 

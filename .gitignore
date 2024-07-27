@@ -15,3 +15,7 @@ Cargo.lock
 
 # Python virtual env
 venv
+
+# Flamegraph
+flamegraph.svg
+perf.data*
