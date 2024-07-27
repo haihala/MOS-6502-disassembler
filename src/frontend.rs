@@ -1,5 +1,5 @@
 use askama::Template;
-use poem::web::{Multipart, Query};
+use poem::web::{Form, Multipart};
 use poem_openapi::{payload::Html, OpenApi};
 use serde::Deserialize;
 
@@ -34,8 +34,8 @@ impl Frontend {
         Html(MainPage.render().unwrap())
     }
 
-    #[oai(path = "/table", method = "get")]
-    pub async fn table(&self, params: Query<TableParams>) -> Html<String> {
+    #[oai(path = "/table", method = "post")]
+    pub async fn table(&self, Form(params): Form<TableParams>) -> Html<String> {
         let mut illegals = vec![];
 
         let bytes = params
@@ -98,12 +98,19 @@ impl Frontend {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     #[tokio::test]
     async fn test_table_generation() {
         let client = reqwest::Client::new();
 
         let output = client
-            .get("http://localhost:9999/table?bytes=a9 bd a0 bd 20 28 ba")
+            .post("http://localhost:9999/table")
+            .form(
+                &vec![("bytes", "a9 bd a0 bd 20 28 ba")]
+                    .into_iter()
+                    .collect::<HashMap<&str, &str>>(),
+            )
             .send()
             .await
             .unwrap()
@@ -116,7 +123,7 @@ mod tests {
             ["0002", "A0 BD", "LDY", "#$BD"],
             ["0004", "20 28 BA", "JSR", "$BA28"],
         ] {
-            dbg!(&chunks);
+            dbg!(&chunks, &output);
             for chunk in chunks {
                 assert!(
                     output.contains(chunk),
@@ -133,7 +140,12 @@ mod tests {
         let client = reqwest::Client::new();
 
         let output = client
-            .get("http://localhost:9999/table?bytes=abcdefgh")
+            .post("http://localhost:9999/table")
+            .form(
+                &vec![("bytes", "abcdefgh")]
+                    .into_iter()
+                    .collect::<HashMap<&str, &str>>(),
+            )
             .send()
             .await
             .unwrap()

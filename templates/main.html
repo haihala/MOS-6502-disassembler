@@ -82,7 +82,7 @@
             <button>upload</button>
         </form>
         <textarea name="bytes"></textarea>
-        <button hx-get="/table" hx-include="[name='bytes']" hx-target=".output" class="disassemble">
+        <button hx-post="/table" hx-include="[name='bytes']" hx-target=".output" class="disassemble">
             Disassemble!
         </button>
         <div class="output"></div>
