@@ -70,6 +70,11 @@ opcodes and all potential values for operands. Not individual operands, each
 loop of opcodes will all receive the same operands. The binary produced is 256
 times the size of the giga binary.
 
+There is a slight difference between the sample implementation and this one. If
+fed the gigabinary, the sample implementation simply stops reading instructions
+after the offset has capped out. I thought it be better to read them and then
+present the offset with additional bytes to make it fit.
+
 I am aware that the giga and mega terms are inaccurate. Felt they were
 descriptive and slightly amusing.
 
@@ -180,3 +185,60 @@ would be slightly harder to see what maps to what. I did consider moving the
 match somewhere, but the file is not _that_ long yet so I didn't. Generally I
 try to aim for less than 300 lines, but I like the logical consistency of
 everything in that file right now. This may change later.
+
+## Level 3
+
+I got most of this done by early Saturday of week 1, meaning I still had over a
+week left before the deadline. In terms of work hours it was probably around 3
+full days. The themes of level 3 was correctness and expanding usability. The
+most notable change was the addition of a frontend, where one could use the
+system through a web browser.
+
+The frontend was made with Askama templates on the backend and HTMX in the
+browser to add some interactivity without having to do a full page load. I'm
+particularly satisfied with the simplicity of it all. HTMX has been something
+I've been circling for a while and this gave me an opportunity to try it out. In
+about three lines of html, I got all the interactivity I wanted. You can upload
+files and have the bytes decoded as hexadecimal digits and have your hexadecimal
+text disassembled. The Askama templates I used to to generate the html had a few
+positive surprises. Askama uses rust macros to check the template variables
+compile time. It can alert you if a field is unused or you are missing one. The
+templates also get baked into the binary, so packaging the application was
+simple. I'll likely use both HTMX and Askama again. While the frontend isn't the
+fanciest site on the internet, I find it functional and beautifully simple.
+
+I initially used utoipa to generate openapi documentation. While writing the
+frontend I realized it wasn't quite as ergonomic as I had hoped. I spent a lot
+of time fighting it, to the point where I probably could've just manually
+written the openapi documentation at that point. It was cumbersome, had subpar
+error messages and was missing some compile time safety that I've come to expect
+from rust. The system compiled just fine even if the openapi spec was
+incomplete, giving a runtime warning if you open the swagger page. After trying
+a few things, I switched axum and utoipa for poem, which comes with a first
+party openapi generator. I liked how poem structured the routes and how little
+additional work the api docs required.
+
+Finally on the frontend/presentation side, I set the whole thing up in oracle
+cloud through docker. The details are explained [here](#CI).
+
+On the correctness side, I was most concerned about the big match statement
+which decodes opcodes. Since it was mostly manually written, I was certain there
+was a mistake in there that simply wasn't caught by the test binaries. To check,
+I first scraped the html table from the reference site, parsed it into a csv
+file and used that and python to generate a "megabinary" with one of each
+opcode. I then fed this to the sample implementation and added a test similar to
+the ones for both existing test binaries. Lo and behold, I had made a few errors
+while transcribing the table. Fix those and felt good about myself. I also added
+tests for the newly created frontend, which was surprisingly easy because it's
+mostly template rendering.
+
+I benchmarked the disassembly function and used cargo-flamegraph to see where
+the time is going. You can read more about that [here](#Performance). I did a
+couple of trivial optimizations here like removing unnecessary clonings where I
+can use borrows, but left it mostly unchanged.
+
+Some of the level 3 tests are a good idea and in hindsight I think the optimal
+amount of effort for this assignment would be somewhere between levels 2 and 3.
+The frontend was not something I would do by default given the initial
+assignment, I just felt like trying it out and since I have plenty of time I saw
+no harm in this detour.
