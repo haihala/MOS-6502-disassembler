@@ -111,10 +111,14 @@ impl AddressMode {
             Indirect => format!(" (${:0>2X}{:0>2X})", args[2], args[1]),
             XIndirect => format!(" (${:0>2X},X)", args[1]),
             IndirectY => format!(" (${:0>2X}),Y", args[1]),
-            Relative => format!(
-                " ${:0>4X}",
-                (offset + 2) as isize + (args[1] as i8) as isize
-            ),
+            Relative => {
+                // Technically, the mos-6502 should only be able to handle addresses up to 2^16
+                // However for the sake of convenience, this disassembler can handle addresses that
+                // fit in the word size of the platform.
+                let addr = (offset + 2) as isize + (args[1] as i8) as isize;
+
+                format!(" ${:04X}", addr as u16)
+            }
             Zeropage => format!(" ${:0>2X}", args[1]),
             ZeropageX => format!(" ${:0>2X},X", args[1]),
             ZeropageY => format!(" ${:0>2X},Y", args[1]),
