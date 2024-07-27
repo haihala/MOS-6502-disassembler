@@ -123,7 +123,7 @@ impl AddressMode {
             ZeropageX => format!(" ${:0>2X},X", args[1]),
             ZeropageY => format!(" ${:0>2X},Y", args[1]),
             AddressMode::Unknown => {
-                if args[0].is_ascii_alphabetic() || args[0].is_ascii_punctuation() {
+                if args[0].is_ascii_alphanumeric() || args[0].is_ascii_punctuation() {
                     // Ascii is a subset of utf-8
                     // args should only have one value for Undefined addresses
                     let char = String::from_utf8(args.to_vec()).unwrap();

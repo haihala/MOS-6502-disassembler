@@ -1,151 +1,256 @@
 0000   00            BRK
 0001   01 FF         ORA ($FF,X)
-0003   05 FF         ORA $FF
-0005   06 FF         ASL $FF
-0007   08            PHP
-0008   09 FF         ORA #$FF
-000A   0A            ASL A
-000B   0D FF FF      ORA $FFFF
-000E   0E FF FF      ASL $FFFF
-0011   10 FF         BPL $0012
-0013   11 FF         ORA ($FF),Y
-0015   15 FF         ORA $FF,X
-0017   16 FF         ASL $FF,X
-0019   18            CLC
-001A   19 FF FF      ORA $FFFF,Y
-001D   1D FF FF      ORA $FFFF,X
-0020   1E FF FF      ASL $FFFF,X
-0023   20 FF FF      JSR $FFFF
-0026   21 FF         AND ($FF,X)
-0028   24 FF         BIT $FF
-002A   25 FF         AND $FF
-002C   26 FF         ROL $FF
-002E   28            PLP
-002F   29 FF         AND #$FF
-0031   2A            ROL A
-0032   2C FF FF      BIT $FFFF
-0035   2D FF FF      AND $FFFF
-0038   2E FF FF      ROL $FFFF
-003B   30 FF         BMI $003C
-003D   31 FF         AND ($FF),Y
-003F   35 FF         AND $FF,X
-0041   36 FF         ROL $FF,X
-0043   38            SEC
-0044   39 FF FF      AND $FFFF,Y
-0047   3D FF FF      AND $FFFF,X
-004A   3E FF FF      ROL $FFFF,X
-004D   40            RTI
-004E   41 FF         EOR ($FF,X)
-0050   45 FF         EOR $FF
-0052   46 FF         LSR $FF
-0054   48            PHA
-0055   49 FF         EOR #$FF
-0057   4A            LSR A
-0058   4C FF FF      JMP $FFFF
-005B   4D FF FF      EOR $FFFF
-005E   4E FF FF      LSR $FFFF
-0061   50 FF         BVC $0062
-0063   51 FF         EOR ($FF),Y
-0065   55 FF         EOR $FF,X
-0067   56 FF         LSR $FF,X
-0069   58            CLI
-006A   59 FF FF      EOR $FFFF,Y
-006D   5D FF FF      EOR $FFFF,X
-0070   5E FF FF      LSR $FFFF,X
-0073   60            RTS
-0074   61 FF         ADC ($FF,X)
-0076   65 FF         ADC $FF
-0078   66 FF         ROR $FF
-007A   68            PLA
-007B   69 FF         ADC #$FF
-007D   6A            ROR A
-007E   6C FF FF      JMP ($FFFF)
-0081   6D FF FF      ADC $FFFF
-0084   6E FF FF      ROR $FFFF
-0087   70 FF         BVS $0088
-0089   71 FF         ADC ($FF),Y
-008B   75 FF         ADC $FF,X
-008D   76 FF         ROR $FF,X
-008F   78            SEI
-0090   79 FF FF      ADC $FFFF,Y
-0093   7D FF FF      ADC $FFFF,X
-0096   7E FF FF      ROR $FFFF,X
-0099   81 FF         STA ($FF,X)
-009B   84 FF         STY $FF
-009D   85 FF         STA $FF
-009F   86 FF         STX $FF
-00A1   88            DEY
-00A2   8A            TXA
-00A3   8C FF FF      STY $FFFF
-00A6   8D FF FF      STA $FFFF
-00A9   8E FF FF      STX $FFFF
-00AC   90 FF         BCC $00AD
-00AE   91 FF         STA ($FF),Y
-00B0   94 FF         STY $FF,X
-00B2   95 FF         STA $FF,X
-00B4   96 FF         STX $FF,Y
-00B6   98            TYA
-00B7   99 FF FF      STA $FFFF,Y
-00BA   9A            TXS
-00BB   9D FF FF      STA $FFFF,X
-00BE   A0 FF         LDY #$FF
-00C0   A1 FF         LDA ($FF,X)
-00C2   A2 FF         LDX #$FF
-00C4   A4 FF         LDY $FF
-00C6   A5 FF         LDA $FF
-00C8   A6 FF         LDX $FF
-00CA   A8            TAY
-00CB   A9 FF         LDA #$FF
-00CD   AA            TAX
-00CE   AC FF FF      LDY $FFFF
-00D1   AD FF FF      LDA $FFFF
-00D4   AE FF FF      LDX $FFFF
-00D7   B0 FF         BCS $00D8
-00D9   B1 FF         LDA ($FF),Y
-00DB   B4 FF         LDY $FF,X
-00DD   B5 FF         LDA $FF,X
-00DF   B6 FF         LDX $FF,Y
-00E1   B8            CLV
-00E2   B9 FF FF      LDA $FFFF,Y
-00E5   BA            TSX
-00E6   BC FF FF      LDY $FFFF,X
-00E9   BD FF FF      LDA $FFFF,X
-00EC   BE FF FF      LDX $FFFF,Y
-00EF   C0 FF         CPY #$FF
-00F1   C1 FF         CMP ($FF,X)
-00F3   C4 FF         CPY $FF
-00F5   C5 FF         CMP $FF
-00F7   C6 FF         DEC $FF
-00F9   C8            INY
-00FA   C9 FF         CMP #$FF
-00FC   CA            DEX
-00FD   CC FF FF      CPY $FFFF
-0100   CD FF FF      CMP $FFFF
-0103   CE FF FF      DEC $FFFF
-0106   D0 FF         BNE $0107
-0108   D1 FF         CMP ($FF),Y
-010A   D5 FF         CMP $FF,X
-010C   D6 FF         DEC $FF,X
-010E   D8            CLD
-010F   D9 FF FF      CMP $FFFF,Y
-0112   DD FF FF      CMP $FFFF,X
-0115   DE FF FF      DEC $FFFF,X
-0118   E0 FF         CPX #$FF
-011A   E1 FF         SBC ($FF,X)
-011C   E4 FF         CPX $FF
-011E   E5 FF         SBC $FF
-0120   E6 FF         INC $FF
-0122   E8            INX
-0123   E9 FF         SBC #$FF
-0125   EA            NOP
-0126   EC FF FF      CPX $FFFF
-0129   ED FF FF      SBC $FFFF
-012C   EE FF FF      INC $FFFF
-012F   F0 FF         BEQ $0130
-0131   F1 FF         SBC ($FF),Y
-0133   F5 FF         SBC $FF,X
-0135   F6 FF         INC $FF,X
-0137   F8            SED
-0138   F9 FF FF      SBC $FFFF,Y
-013B   FD FF FF      SBC $FFFF,X
-013E   FE FF FF      INC $FFFF,X
+0003   02            ???                ;%00000010
+0004   03            ???                ;%00000011
+0005   04            ???                ;%00000100
+0006   05 FF         ORA $FF
+0008   06 FF         ASL $FF
+000A   07            ???                ;%00000111
+000B   08            PHP
+000C   09 FF         ORA #$FF
+000E   0A            ASL A
+000F   0B            ???                ;%00001011
+0010   0C            ???                ;%00001100
+0011   0D FF FF      ORA $FFFF
+0014   0E FF FF      ASL $FFFF
+0017   0F            ???                ;%00001111
+0018   10 FF         BPL $0019
+001A   11 FF         ORA ($FF),Y
+001C   12            ???                ;%00010010
+001D   13            ???                ;%00010011
+001E   14            ???                ;%00010100
+001F   15 FF         ORA $FF,X
+0021   16 FF         ASL $FF,X
+0023   17            ???                ;%00010111
+0024   18            CLC
+0025   19 FF FF      ORA $FFFF,Y
+0028   1A            ???                ;%00011010
+0029   1B            ???                ;%00011011
+002A   1C            ???                ;%00011100
+002B   1D FF FF      ORA $FFFF,X
+002E   1E FF FF      ASL $FFFF,X
+0031   1F            ???                ;%00011111
+0032   20 FF FF      JSR $FFFF
+0035   21 FF         AND ($FF,X)
+0037   22            ???                ;%00100010 '"'
+0038   23            ???                ;%00100011 '#'
+0039   24 FF         BIT $FF
+003B   25 FF         AND $FF
+003D   26 FF         ROL $FF
+003F   27            ???                ;%00100111 '''
+0040   28            PLP
+0041   29 FF         AND #$FF
+0043   2A            ROL A
+0044   2B            ???                ;%00101011 '+'
+0045   2C FF FF      BIT $FFFF
+0048   2D FF FF      AND $FFFF
+004B   2E FF FF      ROL $FFFF
+004E   2F            ???                ;%00101111 '/'
+004F   30 FF         BMI $0050
+0051   31 FF         AND ($FF),Y
+0053   32            ???                ;%00110010 '2'
+0054   33            ???                ;%00110011 '3'
+0055   34            ???                ;%00110100 '4'
+0056   35 FF         AND $FF,X
+0058   36 FF         ROL $FF,X
+005A   37            ???                ;%00110111 '7'
+005B   38            SEC
+005C   39 FF FF      AND $FFFF,Y
+005F   3A            ???                ;%00111010 ':'
+0060   3B            ???                ;%00111011 ';'
+0061   3C            ???                ;%00111100 '<'
+0062   3D FF FF      AND $FFFF,X
+0065   3E FF FF      ROL $FFFF,X
+0068   3F            ???                ;%00111111 '?'
+0069   40            RTI
+006A   41 FF         EOR ($FF,X)
+006C   42            ???                ;%01000010 'B'
+006D   43            ???                ;%01000011 'C'
+006E   44            ???                ;%01000100 'D'
+006F   45 FF         EOR $FF
+0071   46 FF         LSR $FF
+0073   47            ???                ;%01000111 'G'
+0074   48            PHA
+0075   49 FF         EOR #$FF
+0077   4A            LSR A
+0078   4B            ???                ;%01001011 'K'
+0079   4C FF FF      JMP $FFFF
+007C   4D FF FF      EOR $FFFF
+007F   4E FF FF      LSR $FFFF
+0082   4F            ???                ;%01001111 'O'
+0083   50 FF         BVC $0084
+0085   51 FF         EOR ($FF),Y
+0087   52            ???                ;%01010010 'R'
+0088   53            ???                ;%01010011 'S'
+0089   54            ???                ;%01010100 'T'
+008A   55 FF         EOR $FF,X
+008C   56 FF         LSR $FF,X
+008E   57            ???                ;%01010111 'W'
+008F   58            CLI
+0090   59 FF FF      EOR $FFFF,Y
+0093   5A            ???                ;%01011010 'Z'
+0094   5B            ???                ;%01011011 '['
+0095   5C            ???                ;%01011100 '\'
+0096   5D FF FF      EOR $FFFF,X
+0099   5E FF FF      LSR $FFFF,X
+009C   5F            ???                ;%01011111 '_'
+009D   60            RTS
+009E   61 FF         ADC ($FF,X)
+00A0   62            ???                ;%01100010 'b'
+00A1   63            ???                ;%01100011 'c'
+00A2   64            ???                ;%01100100 'd'
+00A3   65 FF         ADC $FF
+00A5   66 FF         ROR $FF
+00A7   67            ???                ;%01100111 'g'
+00A8   68            PLA
+00A9   69 FF         ADC #$FF
+00AB   6A            ROR A
+00AC   6B            ???                ;%01101011 'k'
+00AD   6C FF FF      JMP ($FFFF)
+00B0   6D FF FF      ADC $FFFF
+00B3   6E FF FF      ROR $FFFF
+00B6   6F            ???                ;%01101111 'o'
+00B7   70 FF         BVS $00B8
+00B9   71 FF         ADC ($FF),Y
+00BB   72            ???                ;%01110010 'r'
+00BC   73            ???                ;%01110011 's'
+00BD   74            ???                ;%01110100 't'
+00BE   75 FF         ADC $FF,X
+00C0   76 FF         ROR $FF,X
+00C2   77            ???                ;%01110111 'w'
+00C3   78            SEI
+00C4   79 FF FF      ADC $FFFF,Y
+00C7   7A            ???                ;%01111010 'z'
+00C8   7B            ???                ;%01111011 '{'
+00C9   7C            ???                ;%01111100 '|'
+00CA   7D FF FF      ADC $FFFF,X
+00CD   7E FF FF      ROR $FFFF,X
+00D0   7F            ???                ;%01111111
+00D1   80            ???                ;%10000000
+00D2   81 FF         STA ($FF,X)
+00D4   82            ???                ;%10000010
+00D5   83            ???                ;%10000011
+00D6   84 FF         STY $FF
+00D8   85 FF         STA $FF
+00DA   86 FF         STX $FF
+00DC   87            ???                ;%10000111
+00DD   88            DEY
+00DE   89            ???                ;%10001001
+00DF   8A            TXA
+00E0   8B            ???                ;%10001011
+00E1   8C FF FF      STY $FFFF
+00E4   8D FF FF      STA $FFFF
+00E7   8E FF FF      STX $FFFF
+00EA   8F            ???                ;%10001111
+00EB   90 FF         BCC $00EC
+00ED   91 FF         STA ($FF),Y
+00EF   92            ???                ;%10010010
+00F0   93            ???                ;%10010011
+00F1   94 FF         STY $FF,X
+00F3   95 FF         STA $FF,X
+00F5   96 FF         STX $FF,Y
+00F7   97            ???                ;%10010111
+00F8   98            TYA
+00F9   99 FF FF      STA $FFFF,Y
+00FC   9A            TXS
+00FD   9B            ???                ;%10011011
+00FE   9C            ???                ;%10011100
+00FF   9D FF FF      STA $FFFF,X
+0102   9E            ???                ;%10011110
+0103   9F            ???                ;%10011111
+0104   A0 FF         LDY #$FF
+0106   A1 FF         LDA ($FF,X)
+0108   A2 FF         LDX #$FF
+010A   A3            ???                ;%10100011
+010B   A4 FF         LDY $FF
+010D   A5 FF         LDA $FF
+010F   A6 FF         LDX $FF
+0111   A7            ???                ;%10100111
+0112   A8            TAY
+0113   A9 FF         LDA #$FF
+0115   AA            TAX
+0116   AB            ???                ;%10101011
+0117   AC FF FF      LDY $FFFF
+011A   AD FF FF      LDA $FFFF
+011D   AE FF FF      LDX $FFFF
+0120   AF            ???                ;%10101111
+0121   B0 FF         BCS $0122
+0123   B1 FF         LDA ($FF),Y
+0125   B2            ???                ;%10110010
+0126   B3            ???                ;%10110011
+0127   B4 FF         LDY $FF,X
+0129   B5 FF         LDA $FF,X
+012B   B6 FF         LDX $FF,Y
+012D   B7            ???                ;%10110111
+012E   B8            CLV
+012F   B9 FF FF      LDA $FFFF,Y
+0132   BA            TSX
+0133   BB            ???                ;%10111011
+0134   BC FF FF      LDY $FFFF,X
+0137   BD FF FF      LDA $FFFF,X
+013A   BE FF FF      LDX $FFFF,Y
+013D   BF            ???                ;%10111111
+013E   C0 FF         CPY #$FF
+0140   C1 FF         CMP ($FF,X)
+0142   C2            ???                ;%11000010
+0143   C3            ???                ;%11000011
+0144   C4 FF         CPY $FF
+0146   C5 FF         CMP $FF
+0148   C6 FF         DEC $FF
+014A   C7            ???                ;%11000111
+014B   C8            INY
+014C   C9 FF         CMP #$FF
+014E   CA            DEX
+014F   CB            ???                ;%11001011
+0150   CC FF FF      CPY $FFFF
+0153   CD FF FF      CMP $FFFF
+0156   CE FF FF      DEC $FFFF
+0159   CF            ???                ;%11001111
+015A   D0 FF         BNE $015B
+015C   D1 FF         CMP ($FF),Y
+015E   D2            ???                ;%11010010
+015F   D3            ???                ;%11010011
+0160   D4            ???                ;%11010100
+0161   D5 FF         CMP $FF,X
+0163   D6 FF         DEC $FF,X
+0165   D7            ???                ;%11010111
+0166   D8            CLD
+0167   D9 FF FF      CMP $FFFF,Y
+016A   DA            ???                ;%11011010
+016B   DB            ???                ;%11011011
+016C   DC            ???                ;%11011100
+016D   DD FF FF      CMP $FFFF,X
+0170   DE FF FF      DEC $FFFF,X
+0173   DF            ???                ;%11011111
+0174   E0 FF         CPX #$FF
+0176   E1 FF         SBC ($FF,X)
+0178   E2            ???                ;%11100010
+0179   E3            ???                ;%11100011
+017A   E4 FF         CPX $FF
+017C   E5 FF         SBC $FF
+017E   E6 FF         INC $FF
+0180   E7            ???                ;%11100111
+0181   E8            INX
+0182   E9 FF         SBC #$FF
+0184   EA            NOP
+0185   EB            ???                ;%11101011
+0186   EC FF FF      CPX $FFFF
+0189   ED FF FF      SBC $FFFF
+018C   EE FF FF      INC $FFFF
+018F   EF            ???                ;%11101111
+0190   F0 FF         BEQ $0191
+0192   F1 FF         SBC ($FF),Y
+0194   F2            ???                ;%11110010
+0195   F3            ???                ;%11110011
+0196   F4            ???                ;%11110100
+0197   F5 FF         SBC $FF,X
+0199   F6 FF         INC $FF,X
+019B   F7            ???                ;%11110111
+019C   F8            SED
+019D   F9 FF FF      SBC $FFFF,Y
+01A0   FA            ???                ;%11111010
+01A1   FB            ???                ;%11111011
+01A2   FC            ???                ;%11111100
+01A3   FD FF FF      SBC $FFFF,X
+01A6   FE FF FF      INC $FFFF,X
+01A9   FF            ???                ;%11111111
