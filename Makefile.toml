@@ -50,3 +50,8 @@ dependencies = ["build-release"]
 script = '''
 docker build . -t haihala/mos-6502-disassembler
 '''
+
+[tasks.bench]
+command = "cargo"
+args = ["bench"]
+

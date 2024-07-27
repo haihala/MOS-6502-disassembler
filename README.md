@@ -16,6 +16,7 @@ the following tasks available:
 - cli <files>: Runs the disassembler on all of the files provided
 - build-release: Builds the release binary
 - build-docker: Builds a docker container and tags it as `mos-6502-disassembler`
+- bench: Runs cargo bench
 
 Run any of them with `cargo make <task>`. You need to install cargo-make.
 
