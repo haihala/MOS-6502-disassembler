@@ -1,0 +1,151 @@
+0000   00            BRK
+0001   01 FF         ORA ($FF,X)
+0003   05 FF         ORA $FF
+0005   06 FF         ASL $FF
+0007   08            PHP
+0008   09 FF         ORA #$FF
+000A   0A            ASL A
+000B   0D FF FF      ORA $FFFF
+000E   0E FF FF      ASL $FFFF
+0011   10 FF         BPL $0012
+0013   11 FF         ORA ($FF),Y
+0015   15 FF         ORA $FF,X
+0017   16 FF         ASL $FF,X
+0019   18            CLC
+001A   19 FF FF      ORA $FFFF,Y
+001D   1D FF FF      ORA $FFFF,X
+0020   1E FF FF      ASL $FFFF,X
+0023   20 FF FF      JSR $FFFF
+0026   21 FF         AND ($FF,X)
+0028   24 FF         BIT $FF
+002A   25 FF         AND $FF
+002C   26 FF         ROL $FF
+002E   28            PLP
+002F   29 FF         AND #$FF
+0031   2A            ROL A
+0032   2C FF FF      BIT $FFFF
+0035   2D FF FF      AND $FFFF
+0038   2E FF FF      ROL $FFFF
+003B   30 FF         BMI $003C
+003D   31 FF         AND ($FF),Y
+003F   35 FF         AND $FF,X
+0041   36 FF         ROL $FF,X
+0043   38            SEC
+0044   39 FF FF      AND $FFFF,Y
+0047   3D FF FF      AND $FFFF,X
+004A   3E FF FF      ROL $FFFF,X
+004D   40            RTI
+004E   41 FF         EOR ($FF,X)
+0050   45 FF         EOR $FF
+0052   46 FF         LSR $FF
+0054   48            PHA
+0055   49 FF         EOR #$FF
+0057   4A            LSR A
+0058   4C FF FF      JMP $FFFF
+005B   4D FF FF      EOR $FFFF
+005E   4E FF FF      LSR $FFFF
+0061   50 FF         BVC $0062
+0063   51 FF         EOR ($FF),Y
+0065   55 FF         EOR $FF,X
+0067   56 FF         LSR $FF,X
+0069   58            CLI
+006A   59 FF FF      EOR $FFFF,Y
+006D   5D FF FF      EOR $FFFF,X
+0070   5E FF FF      LSR $FFFF,X
+0073   60            RTS
+0074   61 FF         ADC ($FF,X)
+0076   65 FF         ADC $FF
+0078   66 FF         ROR $FF
+007A   68            PLA
+007B   69 FF         ADC #$FF
+007D   6A            ROR A
+007E   6C FF FF      JMP ($FFFF)
+0081   6D FF FF      ADC $FFFF
+0084   6E FF FF      ROR $FFFF
+0087   70 FF         BVS $0088
+0089   71 FF         ADC ($FF),Y
+008B   75 FF         ADC $FF,X
+008D   76 FF         ROR $FF,X
+008F   78            SEI
+0090   79 FF FF      ADC $FFFF,Y
+0093   7D FF FF      ADC $FFFF,X
+0096   7E FF FF      ROR $FFFF,X
+0099   81 FF         STA ($FF,X)
+009B   84 FF         STY $FF
+009D   85 FF         STA $FF
+009F   86 FF         STX $FF
+00A1   88            DEY
+00A2   8A            TXA
+00A3   8C FF FF      STY $FFFF
+00A6   8D FF FF      STA $FFFF
+00A9   8E FF FF      STX $FFFF
+00AC   90 FF         BCC $00AD
+00AE   91 FF         STA ($FF),Y
+00B0   94 FF         STY $FF,X
+00B2   95 FF         STA $FF,X
+00B4   96 FF         STX $FF,Y
+00B6   98            TYA
+00B7   99 FF FF      STA $FFFF,Y
+00BA   9A            TXS
+00BB   9D FF FF      STA $FFFF,X
+00BE   A0 FF         LDY #$FF
+00C0   A1 FF         LDA ($FF,X)
+00C2   A2 FF         LDX #$FF
+00C4   A4 FF         LDY $FF
+00C6   A5 FF         LDA $FF
+00C8   A6 FF         LDX $FF
+00CA   A8            TAY
+00CB   A9 FF         LDA #$FF
+00CD   AA            TAX
+00CE   AC FF FF      LDY $FFFF
+00D1   AD FF FF      LDA $FFFF
+00D4   AE FF FF      LDX $FFFF
+00D7   B0 FF         BCS $00D8
+00D9   B1 FF         LDA ($FF),Y
+00DB   B4 FF         LDY $FF,X
+00DD   B5 FF         LDA $FF,X
+00DF   B6 FF         LDX $FF,Y
+00E1   B8            CLV
+00E2   B9 FF FF      LDA $FFFF,Y
+00E5   BA            TSX
+00E6   BC FF FF      LDY $FFFF,X
+00E9   BD FF FF      LDA $FFFF,X
+00EC   BE FF FF      LDX $FFFF,Y
+00EF   C0 FF         CPY #$FF
+00F1   C1 FF         CMP ($FF,X)
+00F3   C4 FF         CPY $FF
+00F5   C5 FF         CMP $FF
+00F7   C6 FF         DEC $FF
+00F9   C8            INY
+00FA   C9 FF         CMP #$FF
+00FC   CA            DEX
+00FD   CC FF FF      CPY $FFFF
+0100   CD FF FF      CMP $FFFF
+0103   CE FF FF      DEC $FFFF
+0106   D0 FF         BNE $0107
+0108   D1 FF         CMP ($FF),Y
+010A   D5 FF         CMP $FF,X
+010C   D6 FF         DEC $FF,X
+010E   D8            CLD
+010F   D9 FF FF      CMP $FFFF,Y
+0112   DD FF FF      CMP $FFFF,X
+0115   DE FF FF      DEC $FFFF,X
+0118   E0 FF         CPX #$FF
+011A   E1 FF         SBC ($FF,X)
+011C   E4 FF         CPX $FF
+011E   E5 FF         SBC $FF
+0120   E6 FF         INC $FF
+0122   E8            INX
+0123   E9 FF         SBC #$FF
+0125   EA            NOP
+0126   EC FF FF      CPX $FFFF
+0129   ED FF FF      SBC $FFFF
+012C   EE FF FF      INC $FFFF
+012F   F0 FF         BEQ $0130
+0131   F1 FF         SBC ($FF),Y
+0133   F5 FF         SBC $FF,X
+0135   F6 FF         INC $FF,X
+0137   F8            SED
+0138   F9 FF FF      SBC $FFFF,Y
+013B   FD FF FF      SBC $FFFF,X
+013E   FE FF FF      INC $FFFF,X

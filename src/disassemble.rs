@@ -8,7 +8,7 @@ enum Operation {
     ADC,
     AND,
     ASL,
-    BBC,
+    BCC,
     BCS,
     BEQ,
     BIT,
@@ -49,6 +49,7 @@ enum Operation {
     RTI,
     RTS,
     SBC,
+    SEC,
     SED,
     SEI,
     STA,
@@ -175,7 +176,7 @@ fn decode_opcode(value: u8) -> (Operation, AddressMode) {
         0x31 => (AND, IndirectY),
         0x35 => (AND, ZeropageX),
         0x36 => (ROL, ZeropageX),
-        0x38 => (PLP, Implied),
+        0x38 => (SEC, Implied),
         0x39 => (AND, AbsoluteY),
         0x3d => (AND, AbsoluteX),
         0x3e => (ROL, AbsoluteX),
@@ -230,13 +231,13 @@ fn decode_opcode(value: u8) -> (Operation, AddressMode) {
         0x8d => (STA, Absolute),
         0x8e => (STX, Absolute),
 
-        0x90 => (BBC, Relative),
+        0x90 => (BCC, Relative),
         0x91 => (STA, IndirectY),
         0x94 => (STY, ZeropageX),
         0x95 => (STA, ZeropageX),
         0x96 => (STX, ZeropageY),
         0x98 => (TYA, Implied),
-        0x99 => (STA, AbsoluteX),
+        0x99 => (STA, AbsoluteY),
         0x9a => (TXS, Implied),
         0x9d => (STA, AbsoluteX),
 
@@ -279,7 +280,7 @@ fn decode_opcode(value: u8) -> (Operation, AddressMode) {
 
         0xd0 => (BNE, Relative),
         0xd1 => (CMP, IndirectY),
-        0xd5 => (CMP, Zeropage),
+        0xd5 => (CMP, ZeropageX),
         0xd6 => (DEC, ZeropageX),
         0xd8 => (CLD, Implied),
         0xd9 => (CMP, AbsoluteY),
@@ -408,6 +409,14 @@ mod test {
     #[test]
     fn test_binary_two() {
         test_example_bin("test2");
+    }
+
+    #[test]
+    fn test_mega_binary() {
+        // This is a special binary that has been generated with a python script
+        // It has all of the legal opcodes with all operands as 'FF'
+        // If the disassemble mega-match has a mistake, it ought to be caught here
+        test_example_bin("mega");
     }
 
     fn test_example_bin(case: &'static str) {

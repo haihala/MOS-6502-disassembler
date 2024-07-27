@@ -24,12 +24,17 @@ started the server using `cargo make server` or `cargo make watch`, the swagger
 UI will be at http://127.0.0.1:9999/swagger. There is also a rudimentary user
 interface available http://127.0.0.1:9999/.
 
-# Python testing tool
+# Python testing tools
 
-To easier feed files to the web server, I made a simple python testing tool
-called `feed.py`. To use it, you need to install
-[httpx](https://www.python-httpx.org/). I recommend doing this in a virtual
-python environent with something like:
+To ease testing, I made some simple python testing tools. These are not built in
+with the web server, but simply used to generate test data and more easily
+access the web server.
+
+## feed.py
+
+The feed script can be used to feed binary files to the web server. To use it,
+you need to install [httpx](https://www.python-httpx.org/). I recommend doing
+this in a virtual python environent with something like:
 
 ```sh
 python -m venv venv
@@ -41,6 +46,21 @@ You can then use the feeder. To use it, have the first command line argument be
 the path to the file, for example `python feed.py test-bin/test1.bin`.
 Optionally, you can add a `--verbose` flag after the path to get a bit more
 information.
+
+## generate-megabinary.py
+
+This script was used to generate the "megabinary". Simply put, it is a binary
+with one of each opcode and the operands set to 'FF' for each. This was then fed
+to the sample implementation at https://www.masswerk.at/6502/disassembler.html
+and the output compared to the web server's, same as other sample binaries. The
+main advantage of this approach, is that it tests the massive match expression
+that maps the opcodes to operations and address modes. A few mistakes were made
+when that table was being implemented which were caught with the megabinary
+test.
+
+The opcodes were derived directly from the reference page HTML. This was edited
+down to a csv variant with semicolons as separators and then fed to the python
+script in question.
 
 # CI
 
