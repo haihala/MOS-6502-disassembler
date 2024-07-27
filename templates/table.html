@@ -10,7 +10,7 @@
     <tbody>
         {% for line in lines %}
         <tr>
-            <td>{{ "{:0>4x}"|format(line.offset) }}</td>
+            <td>{{ "{:0>4X}"|format(line.offset) }}</td>
             <td>{{ line.render_raw }}</td>
             <td>{{ line.operation }}</td>
             <td>{{ line.render_address }}</td>
