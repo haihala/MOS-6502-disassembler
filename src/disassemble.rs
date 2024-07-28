@@ -1,6 +1,7 @@
+use std::fmt::Display;
+
 use poem_openapi::Object;
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
 #[allow(clippy::upper_case_acronyms)]
@@ -70,6 +71,7 @@ impl Display for Operation {
         if *self == Operation::Unknown {
             write!(f, "???")
         } else {
+            // Debug formatter gets the three letter symbol of the operation
             write!(f, "{:?}", self)
         }
     }
@@ -94,42 +96,44 @@ enum AddressMode {
 }
 use AddressMode::*;
 impl AddressMode {
-    fn format(&self, args: &[u8], offset: usize) -> String {
+    fn format(&self, formatted_args: &[String], unformatted_args: &[u8], offset: usize) -> String {
         // The entire instruction is passed in, index accordingly
-        if args.len() != self.length() {
+        if formatted_args.len() != self.length() {
             // Input is faulty and missing bytes
-            return " *Missing operands*".to_string();
+            return String::from("*Missing operands*");
         }
 
         match self {
-            Accumulator => " A".to_string(),
-            Absolute => format!(" ${:0>2X}{:0>2X}", args[2], args[1]),
-            AbsoluteX => format!(" ${:0>2X}{:0>2X},X", args[2], args[1]),
-            AbsoluteY => format!(" ${:0>2X}{:0>2X},Y", args[2], args[1]),
-            Immediate => format!(" #${:0>2X}", args[1]),
+            Accumulator => String::from("A"),
+            Absolute => format!("${}{}", formatted_args[2], formatted_args[1]),
+            AbsoluteX => format!("${}{},X", formatted_args[2], formatted_args[1]),
+            AbsoluteY => format!("${}{},Y", formatted_args[2], formatted_args[1]),
+            Immediate => format!("#${}", formatted_args[1]),
             Implied => String::new(),
-            Indirect => format!(" (${:0>2X}{:0>2X})", args[2], args[1]),
-            XIndirect => format!(" (${:0>2X},X)", args[1]),
-            IndirectY => format!(" (${:0>2X}),Y", args[1]),
+            Indirect => format!("(${}{})", formatted_args[2], formatted_args[1]),
+            XIndirect => format!("(${},X)", formatted_args[1]),
+            IndirectY => format!("(${}),Y", formatted_args[1]),
             Relative => {
                 // Technically, the mos-6502 should only be able to handle addresses up to 2^16
                 // However for the sake of convenience, this disassembler can handle addresses that
                 // fit in the word size of the platform.
-                let addr = (offset + 2) as isize + (args[1] as i8) as isize;
+                let addr = (offset + 2) as isize + (unformatted_args[1] as i8) as isize;
 
-                format!(" ${:04X}", addr as u16)
+                format!("${:04X}", addr as u16)
             }
-            Zeropage => format!(" ${:0>2X}", args[1]),
-            ZeropageX => format!(" ${:0>2X},X", args[1]),
-            ZeropageY => format!(" ${:0>2X},Y", args[1]),
+            Zeropage => format!("${}", formatted_args[1]),
+            ZeropageX => format!("${},X", formatted_args[1]),
+            ZeropageY => format!("${},Y", formatted_args[1]),
             AddressMode::Unknown => {
-                if args[0].is_ascii_alphanumeric() || args[0].is_ascii_punctuation() {
+                if unformatted_args[0].is_ascii_alphanumeric()
+                    || unformatted_args[0].is_ascii_punctuation()
+                {
                     // Ascii is a subset of utf-8
                     // args should only have one value for Undefined addresses
-                    let char = String::from_utf8(args.to_vec()).unwrap();
-                    format!("                ;%{:0>8b} '{}'", args[0], char)
+                    let char = String::from_utf8(unformatted_args.to_vec()).unwrap();
+                    format!(";%{:0>8b} '{}'", unformatted_args[0], char)
                 } else {
-                    format!("                ;%{:0>8b}", args[0])
+                    format!(";%{:0>8b}", unformatted_args[0])
                 }
             }
         }
@@ -346,43 +350,51 @@ impl Instruction {
     fn is_satisfied(&self) -> bool {
         self.address_mode.length() == self.raw_bytes.len()
     }
-
-    fn render_raw(&self) -> String {
-        self.raw_bytes
-            .iter()
-            .map(|byte| format!("{:0>2X}", byte))
-            .collect::<Vec<_>>()
-            .join(" ")
-    }
-
-    fn render_address(&self) -> String {
-        self.address_mode.format(&self.raw_bytes, self.offset)
-    }
-
-    fn as_structured_instruction(&self) -> StructuredInstruction {
-        StructuredInstruction {
-            offset: self.offset,
-            render_raw: self.render_raw(),
-            render_address: self.render_address(),
-            operation: self.operation.to_string(),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Object, Clone)]
 pub struct StructuredInstruction {
     pub offset: usize,
-    pub render_raw: String,
+    pub raw_bytes: String,
     pub operation: String,
     pub render_address: String,
 }
+
+impl From<Instruction> for StructuredInstruction {
+    fn from(value: Instruction) -> Self {
+        let raw_render: Vec<String> = value
+            .raw_bytes
+            .iter()
+            .map(|byte| format!("{:0>2X}", byte))
+            .collect();
+
+        StructuredInstruction {
+            offset: value.offset,
+            raw_bytes: raw_render.join(" "),
+            render_address: value
+                .address_mode
+                .format(&raw_render, &value.raw_bytes, value.offset),
+            operation: value.operation.to_string(),
+        }
+    }
+}
+
 impl Display for StructuredInstruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{:04X}   {: <8}      {}{}",
-            self.offset, self.render_raw, self.operation, self.render_address,
-        )
+        let base = format!("{:04X}   {: <8}", self.offset, self.raw_bytes);
+
+        let opcode = if self.render_address.is_empty() {
+            // Implied address mode, no address
+            self.operation.to_string()
+        } else if self.operation == "???" {
+            // Unknown opcode, show bytes
+            format!("???                {}", self.render_address)
+        } else {
+            // Default case
+            format!("{} {}", self.operation, self.render_address)
+        };
+
+        write!(f, "{}      {}", base, opcode)
     }
 }
 
@@ -398,7 +410,7 @@ pub fn disassemble(data: &[u8]) -> Vec<StructuredInstruction> {
             acc
         })
         .into_iter()
-        .map(|instruction| instruction.as_structured_instruction())
+        .map(StructuredInstruction::from)
         .collect()
 }
 
