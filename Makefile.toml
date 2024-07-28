@@ -55,6 +55,10 @@ docker build . -t haihala/mos-6502-disassembler
 command = "cargo"
 args = ["bench"]
 
-[tasks.flamegraph]
+[tasks.flamegraph-bench]
 command = "cargo"
-args = ["flamegraph", "--dev", "--bench", "disassemble"]
+args = ["flamegraph", "--bench", "disassemble"]
+
+[tasks.flamegraph-cli]
+command = "cargo"
+args = ["flamegraph", "--bin", "cli", "--", "test-bin/giga.bin"]
