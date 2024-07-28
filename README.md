@@ -98,17 +98,20 @@ inputs, as that seems like a natural place to do that.
 
 I did some benchmarking and profiling using `criterion` and `cargo-flamegraph`
 respectively. Before I changed anything, disassembling the mega binary took
-about 3ms. After some tweaks I got it down to just above 2ms, but felt the loss
+about 5ms. After some tweaks I got it down to just above 4ms, but felt the loss
 in readability was not worth the performance gain considering it should be
 plenty fast for a web server as is.
 
-The main culprit for performance issues was repeatedly formating and
-concatenating strings. Perhaps a more centralized strategy would serve it well.
-I don't feel the need to investigate that due to sufficiently good performance
-as is. Disassembling the gigabinary takes about 600ms (110ms on release build).
-If output is piped to /dev/null, it drops to 60ms (25ms on release build). The
+The main culprit for performance issues is formating and concatenating strings.
+Disassembling the gigabinary takes about 280ms (220ms on release build). If
+output is piped to /dev/null, it drops to 90ms (40ms on release build). The
 mos-6502 shouldn't even be able to handle a binary of that size, as the offset
-no longer fits to 16 bits.
+won't fit to 16 bits.
+
+I tried out rayon for parallilizing the string operations and it did yield
+promising results, but only beyond a certain point. The giga binary benchmark
+went down about 50%. Unfortunately the mega binary went up about 50%. A more
+thought out parallelization strategy may be beneficial.
 
 # Levels
 
