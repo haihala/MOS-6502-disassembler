@@ -12,10 +12,10 @@ the following tasks available:
 - format: Check formatting with rustfmt
 - clippy: Check code with clippy
 - validate: Runs build, test, format, and clippy tasks
-- watch: Runs server in cargo-watch
-- cli <files>: Runs the disassembler on all of the files provided
+- watch: Runs server, rebuilds and restarts when files change
+- cli <files>: Runs the cli disassembler on all of the files provided
 - build-release: Builds the release binary
-- build-docker: Builds a docker container and tags it as `mos-6502-disassembler`
+- build-docker: Builds a docker container and tags it as `haihala/mos-6502-disassembler`
 - bench: Runs cargo bench
 - flamegraph-bench: Runs generates a flamegraph of the benchmarks with cargo-flamegraph
 - flamegraph-cli: Runs generates a flamegraph of the cli with cargo-flamegraph
