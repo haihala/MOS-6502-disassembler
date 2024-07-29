@@ -9,7 +9,7 @@ fn bench_disassemble(c: &mut Criterion) {
         let input = fs::read("test-bin/mega.bin").unwrap();
         b.iter(|| {
             std::hint::black_box(for _ in 1..=100 {
-                let _ = disassemble(&input);
+                disassemble(&input);
             });
         });
     });
@@ -17,8 +17,8 @@ fn bench_disassemble(c: &mut Criterion) {
     c.bench_function("bench_disassemble_giga_bin", |b| {
         let input = fs::read("test-bin/giga.bin").unwrap();
         b.iter(|| {
-            std::hint::black_box(for _ in 1..=100 {
-                let _ = disassemble(&input);
+            std::hint::black_box(for _ in 1..=10 {
+                disassemble(&input);
             });
         });
     });

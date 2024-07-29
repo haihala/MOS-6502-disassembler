@@ -17,7 +17,7 @@ The project has the following tasks available:
 - validate: Runs build, test, format, and clippy tasks
 - build-release: Builds the release binary
 - build-docker: Builds a docker container and tags it as `haihala/mos-6502-disassembler`
-- bench: Runs cargo bench, will take several minutes
+- bench: Runs cargo bench
 - flamegraph-bench: Runs generates a flamegraph of the benchmarks with cargo-flamegraph
 - flamegraph-cli: Runs generates a flamegraph of the cli with cargo-flamegraph
 
