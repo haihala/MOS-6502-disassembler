@@ -6,7 +6,7 @@ use tracing::{event, Level};
 
 use crate::{disassemble, Instruction};
 
-#[derive(Template)]
+#[derive(Debug, Template)]
 #[template(path = "main.html")]
 struct MainPage;
 
@@ -15,13 +15,13 @@ pub struct TableParams {
     bytes: String,
 }
 
-#[derive(Template)]
+#[derive(Debug, Template)]
 #[template(path = "table.html")]
 struct TableTemplate {
     lines: Vec<Instruction>,
 }
 
-#[derive(Template)]
+#[derive(Debug, Template)]
 #[template(path = "table-error.html")]
 struct TableErrorTemplate {
     illegals: Vec<(usize, String)>,
@@ -41,49 +41,45 @@ impl Frontend {
     #[oai(path = "/table", method = "post")]
     pub async fn table(&self, Form(params): Form<TableParams>) -> Html<String> {
         event!(Level::INFO, "Table");
+
         let mut illegals = vec![];
 
-        let bytes = params
+        let filtered: Vec<char> = params
             .bytes
             .chars()
             .filter(|c| !c.is_ascii_whitespace()) // Strip whitespace
-            // Form into pairs (2 hexadecimal digits -> 1 byte)
-            .fold(vec![], |mut acc: Vec<String>, incoming| {
-                match acc.last_mut() {
-                    Some(s) if s.len() == 1 => {
-                        *s = format!("{}{}", s, incoming);
-                    }
-                    _ => {
-                        acc.push(incoming.to_string());
-                    }
-                };
-                acc
-            })
-            .into_iter()
+            .collect();
+
+        let bytes: Vec<u8> = filtered
+            // This could be manually folded or chunked with itertools,
+            // but I like the simplicity of collecting and using std rust tools.
+            .chunks(2)
             .enumerate()
-            .filter_map(|(index, c)| {
-                if let Ok(digit) = u8::from_str_radix(c.as_str(), 16) {
+            .filter_map(|(index, chars)| {
+                let token = String::from_iter(chars);
+                if let Ok(digit) = u8::from_str_radix(token.as_str(), 16) {
                     Some(digit)
                 } else {
-                    illegals.push((index, c));
+                    illegals.push((index, token));
                     None
                 }
             })
-            .collect::<Vec<u8>>();
+            .collect();
 
-        if !illegals.is_empty() {
-            Html(TableErrorTemplate { illegals }.render().unwrap())
-        } else {
+        if illegals.is_empty() {
             let lines = disassemble(&bytes);
             Html(TableTemplate { lines }.render().unwrap())
+        } else {
+            Html(TableErrorTemplate { illegals }.render().unwrap())
         }
     }
 
     #[oai(path = "/decode", method = "post")]
     pub async fn decode_file(&self, mut multipart: Multipart) -> Html<String> {
         event!(Level::INFO, "Decode file");
+
         let Ok(Some(file)) = multipart.next_field().await else {
-            // No file => Treat as an empty file
+            // No file is treated as an empty file
             return Html(String::new());
         };
 
@@ -164,13 +160,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_decode() {
-        const URL: &str = "http://localhost:9999/decode";
         let client = reqwest::Client::new();
 
         let bytes = std::fs::read("test-bin/test1.bin").unwrap();
 
         let lines: String = client
-            .post(URL)
+            .post("http://localhost:9999/decode")
             .multipart(
                 reqwest::multipart::Form::new()
                     .part("file", reqwest::multipart::Part::stream(bytes)),

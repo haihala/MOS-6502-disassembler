@@ -43,7 +43,6 @@ mod tests {
     use super::*;
     #[tokio::test]
     async fn test_api_with_example() {
-        const URL: &str = "http://localhost:9999/json";
         let client = reqwest::Client::builder().build().unwrap();
 
         let payload = Input {
@@ -51,7 +50,7 @@ mod tests {
         };
 
         let lines = client
-            .post(URL)
+            .post("http://localhost:9999/json")
             .json(&payload)
             .send()
             .await
