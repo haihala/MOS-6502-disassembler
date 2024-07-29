@@ -15,12 +15,11 @@ async fn main() {
     let args = Args::parse();
     tracing_subscriber::fmt().init();
 
-    let service = OpenApiService::new((Api, Frontend), "Api", "1.0")
-        .server(format!("http://{}", args.bind_address));
+    let endpoints = OpenApiService::new((Api, Frontend), "Api", "1.0");
 
-    let ui = service.swagger_ui();
+    let ui = endpoints.swagger_ui();
 
     let _ = Server::new(TcpListener::bind(args.bind_address))
-        .run(Route::new().nest("/", service).nest("/swagger", ui))
+        .run(Route::new().nest("/", endpoints).nest("/swagger", ui))
         .await;
 }
