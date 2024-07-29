@@ -11,9 +11,9 @@
         {% for line in lines %}
         <tr>
             <td>{{ "{:0>4X}"|format(line.offset) }}</td>
-            <td>{{ line.raw_bytes }}</td>
+            <td>{{ line.bytes }}</td>
             <td>{{ line.operation }}</td>
-            <td>{{ line.render_address }}</td>
+            <td>{{ line.address }}</td>
         </tr>
         {% endfor %}
     </tbody>

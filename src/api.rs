@@ -1,4 +1,4 @@
-use crate::{disassemble, StructuredInstruction};
+use crate::{disassemble, Instruction};
 use poem_openapi::{payload::Json, ApiResponse, Object, OpenApi};
 use serde::{Deserialize, Serialize};
 
@@ -16,7 +16,7 @@ pub enum Output {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Object, Clone)]
 pub struct Disassembly {
     lines: Vec<String>,
-    structured: Vec<StructuredInstruction>,
+    structured: Vec<Instruction>,
 }
 
 pub struct Api;

@@ -71,7 +71,6 @@ impl Display for Operation {
         if *self == Operation::Unknown {
             write!(f, "???")
         } else {
-            // Debug formatter gets the three letter symbol of the operation
             write!(f, "{:?}", self)
         }
     }
@@ -96,44 +95,38 @@ enum AddressMode {
 }
 use AddressMode::*;
 impl AddressMode {
-    fn format(&self, formatted_args: &[String], unformatted_args: &[u8], offset: usize) -> String {
-        // The entire instruction is passed in, index accordingly
-        if formatted_args.len() != self.length() {
+    fn format(&self, formatted: &[String], raw: &[u8], offset: usize) -> String {
+        if formatted.len() != self.length() {
             // Input is faulty and missing bytes
             return String::from("*Missing operands*");
         }
 
         match self {
             Accumulator => String::from("A"),
-            Absolute => format!("${}{}", formatted_args[2], formatted_args[1]),
-            AbsoluteX => format!("${}{},X", formatted_args[2], formatted_args[1]),
-            AbsoluteY => format!("${}{},Y", formatted_args[2], formatted_args[1]),
-            Immediate => format!("#${}", formatted_args[1]),
+            Absolute => format!("${}{}", formatted[2], formatted[1]),
+            AbsoluteX => format!("${}{},X", formatted[2], formatted[1]),
+            AbsoluteY => format!("${}{},Y", formatted[2], formatted[1]),
+            Immediate => format!("#${}", formatted[1]),
             Implied => String::new(),
-            Indirect => format!("(${}{})", formatted_args[2], formatted_args[1]),
-            XIndirect => format!("(${},X)", formatted_args[1]),
-            IndirectY => format!("(${}),Y", formatted_args[1]),
+            Indirect => format!("(${}{})", formatted[2], formatted[1]),
+            XIndirect => format!("(${},X)", formatted[1]),
+            IndirectY => format!("(${}),Y", formatted[1]),
             Relative => {
-                // Technically, the mos-6502 should only be able to handle addresses up to 2^16
-                // However for the sake of convenience, this disassembler can handle addresses that
-                // fit in the word size of the platform.
-                let addr = (offset + 2) as isize + (unformatted_args[1] as i8) as isize;
+                // MOS-6502 can only handle addresses up to 2^16
+                // For the sake of convenience, this disassembler handles bigger binaries
+                let addr = (offset + 2) as isize + (raw[1] as i8) as isize;
 
                 format!("${:04X}", addr as u16)
             }
-            Zeropage => format!("${}", formatted_args[1]),
-            ZeropageX => format!("${},X", formatted_args[1]),
-            ZeropageY => format!("${},Y", formatted_args[1]),
+            Zeropage => format!("${}", formatted[1]),
+            ZeropageX => format!("${},X", formatted[1]),
+            ZeropageY => format!("${},Y", formatted[1]),
             AddressMode::Unknown => {
-                if unformatted_args[0].is_ascii_alphanumeric()
-                    || unformatted_args[0].is_ascii_punctuation()
-                {
-                    // Ascii is a subset of utf-8
-                    // args should only have one value for Undefined addresses
-                    let char = String::from_utf8(unformatted_args.to_vec()).unwrap();
-                    format!(";%{:0>8b} '{}'", unformatted_args[0], char)
+                let is_ascii_symbol = (32..126).contains(&raw[0]);
+                if is_ascii_symbol {
+                    format!(";%{:0>8b} '{}'", raw[0], raw[0] as char)
                 } else {
-                    format!(";%{:0>8b}", unformatted_args[0])
+                    format!(";%{:0>8b}", raw[0])
                 }
             }
         }
@@ -150,8 +143,8 @@ impl AddressMode {
 
 fn decode_opcode(value: u8) -> (Operation, AddressMode) {
     match value {
-        // Goes through https://www.masswerk.at/6502/6502_instruction_set.html
-        // Considered parsing this, but got carried away with vim macros.
+        // From https://www.masswerk.at/6502/6502_instruction_set.html
+        // Validated with a binary that contains one of each byte as an instruction
         0x00 => (BRK, Implied),
         0x01 => (ORA, XIndirect),
         0x05 => (ORA, Zeropage),
@@ -324,18 +317,18 @@ fn decode_opcode(value: u8) -> (Operation, AddressMode) {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-struct Instruction {
+struct InstructionBuilder {
     operation: Operation,
     address_mode: AddressMode,
     raw_bytes: Vec<u8>,
     offset: usize,
 }
 
-impl Instruction {
+impl InstructionBuilder {
     fn new(offset: usize, token: u8) -> Self {
         let (operation, address_mode) = decode_opcode(token);
 
-        Instruction {
+        InstructionBuilder {
             offset,
             operation,
             address_mode,
@@ -353,64 +346,65 @@ impl Instruction {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Object, Clone)]
-pub struct StructuredInstruction {
+pub struct Instruction {
     pub offset: usize,
-    pub raw_bytes: String,
+    pub bytes: String,
     pub operation: String,
-    pub render_address: String,
+    pub address: String,
 }
 
-impl From<Instruction> for StructuredInstruction {
-    fn from(value: Instruction) -> Self {
-        let raw_render: Vec<String> = value
+impl From<InstructionBuilder> for Instruction {
+    fn from(value: InstructionBuilder) -> Self {
+        let formatted_bytes: Vec<String> = value
             .raw_bytes
             .iter()
             .map(|byte| format!("{:0>2X}", byte))
             .collect();
 
-        StructuredInstruction {
+        Instruction {
             offset: value.offset,
-            raw_bytes: raw_render.join(" "),
-            render_address: value
+            bytes: formatted_bytes.join(" "),
+            address: value
                 .address_mode
-                .format(&raw_render, &value.raw_bytes, value.offset),
+                .format(&formatted_bytes, &value.raw_bytes, value.offset),
             operation: value.operation.to_string(),
         }
     }
 }
 
-impl Display for StructuredInstruction {
+impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let base = format!("{:04X}   {: <8}", self.offset, self.raw_bytes);
+        let base = format!("{:04X}   {: <8}", self.offset, self.bytes);
 
-        let opcode = if self.render_address.is_empty() {
-            // Implied address mode, no address
+        let opcode = if self.address.is_empty() {
             self.operation.to_string()
         } else if self.operation == "???" {
-            // Unknown opcode, show bytes
-            format!("???                {}", self.render_address)
+            format!("???                {}", self.address)
         } else {
-            // Default case
-            format!("{} {}", self.operation, self.render_address)
+            format!("{} {}", self.operation, self.address)
         };
 
         write!(f, "{}      {}", base, opcode)
     }
 }
 
-pub fn disassemble(data: &[u8]) -> Vec<StructuredInstruction> {
-    data.iter()
+pub fn disassemble(bytes: &[u8]) -> Vec<Instruction> {
+    bytes
+        .iter()
         .enumerate()
-        .fold(vec![], |mut acc: Vec<Instruction>, (offset, token)| {
-            match acc.last_mut() {
-                Some(last) if !last.is_satisfied() => last.add(*token),
-                _ => acc.push(Instruction::new(offset, *token)),
-            };
+        .fold(
+            vec![],
+            |mut acc: Vec<InstructionBuilder>, (offset, token)| {
+                match acc.last_mut() {
+                    Some(last) if !last.is_satisfied() => last.add(*token),
+                    _ => acc.push(InstructionBuilder::new(offset, *token)),
+                };
 
-            acc
-        })
+                acc
+            },
+        )
         .into_iter()
-        .map(StructuredInstruction::from)
+        .map(Instruction::from)
         .collect()
 }
 
@@ -434,15 +428,15 @@ mod test {
     fn test_mega_binary() {
         // This is a special binary that has been generated with a python script
         // It has all of the legal opcodes with all operands as 'FF'
-        // If the disassemble mega-match has a mistake, it ought to be caught here
+        // Illegal opcodes have no operands
         test_example_bin("mega");
     }
 
     fn test_example_bin(case: &'static str) {
         let input = fs::read(format!("test-bin/{}.bin", case)).unwrap();
-        // Examples are from https://www.masswerk.at/6502/disassembler.html
-        // Set output format to "verbose - no symbols"
-        // Removed first and last lines
+        // Used https://www.masswerk.at/6502/disassembler.html as a reference
+        // Set output format to "verbose - no symbols", this changes indentation
+        // Removed first and last lines, "* = $0000" and ".END" respectively
         let expected = fs::read(format!("test-bin/{}.example", case)).unwrap();
 
         for (line, (output, exp)) in disassemble(&input)

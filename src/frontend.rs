@@ -3,7 +3,7 @@ use poem::web::{Form, Multipart};
 use poem_openapi::{payload::Html, OpenApi};
 use serde::Deserialize;
 
-use crate::{disassemble, StructuredInstruction};
+use crate::{disassemble, Instruction};
 
 #[derive(Template)]
 #[template(path = "main.html")]
@@ -17,7 +17,7 @@ pub struct TableParams {
 #[derive(Template)]
 #[template(path = "table.html")]
 struct TableTemplate {
-    lines: Vec<StructuredInstruction>,
+    lines: Vec<Instruction>,
 }
 
 #[derive(Template)]
@@ -77,14 +77,14 @@ impl Frontend {
     #[oai(path = "/decode", method = "post")]
     pub async fn decode_file(&self, mut multipart: Multipart) -> Html<String> {
         let Ok(Some(file)) = multipart.next_field().await else {
-            // No file = empty file
+            // No file => Treat as an empty file
             return Html(String::new());
         };
 
         Html(
             file.bytes()
                 .await
-                .unwrap_or_default() // Failed to parse file = empty file
+                .unwrap_or_default() // Failed to parse file, treat as an empty file
                 .into_iter()
                 .map(|byte| format!("{:0>2X}", byte))
                 .collect::<Vec<_>>()
