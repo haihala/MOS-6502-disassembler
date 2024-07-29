@@ -1,6 +1,7 @@
 use crate::{disassemble, Instruction};
 use poem_openapi::{payload::Json, ApiResponse, Object, OpenApi};
 use serde::{Deserialize, Serialize};
+use tracing::{event, instrument, Level};
 
 #[derive(Debug, Serialize, Deserialize, Object)]
 pub struct Input {
@@ -19,12 +20,15 @@ pub struct Disassembly {
     structured: Vec<Instruction>,
 }
 
+#[derive(Debug)]
 pub struct Api;
 
 #[OpenApi]
 impl Api {
+    #[instrument]
     #[oai(path = "/json", method = "post")]
     pub async fn json_handler(&self, payload: Json<Input>) -> Output {
+        event!(Level::INFO, "Disassembling Json");
         let structured = disassemble(&payload.bytes);
 
         Output::Ok(Json(Disassembly {

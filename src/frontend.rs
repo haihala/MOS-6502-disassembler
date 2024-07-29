@@ -2,6 +2,7 @@ use askama::Template;
 use poem::web::{Form, Multipart};
 use poem_openapi::{payload::Html, OpenApi};
 use serde::Deserialize;
+use tracing::{event, Level};
 
 use crate::{disassemble, Instruction};
 
@@ -26,16 +27,20 @@ struct TableErrorTemplate {
     illegals: Vec<(usize, String)>,
 }
 
+#[derive(Debug)]
 pub struct Frontend;
+
 #[OpenApi]
 impl Frontend {
     #[oai(path = "/", method = "get")]
     pub async fn front_page(&self) -> Html<String> {
+        event!(Level::INFO, "Front page");
         Html(MainPage.render().unwrap())
     }
 
     #[oai(path = "/table", method = "post")]
     pub async fn table(&self, Form(params): Form<TableParams>) -> Html<String> {
+        event!(Level::INFO, "Table");
         let mut illegals = vec![];
 
         let bytes = params
@@ -76,6 +81,7 @@ impl Frontend {
 
     #[oai(path = "/decode", method = "post")]
     pub async fn decode_file(&self, mut multipart: Multipart) -> Html<String> {
+        event!(Level::INFO, "Decode file");
         let Ok(Some(file)) = multipart.next_field().await else {
             // No file => Treat as an empty file
             return Html(String::new());
